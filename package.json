@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "scripts": {
         "build": "next build",
-        "dev": "next dev --turbopack",
+        "dev": "next dev -H 0.0.0.0 -p 3000 --turbopack",
         "format": "prettier --write .",
         "lint": "next lint",
         "start": "next start"
