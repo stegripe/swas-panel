@@ -1,18 +1,45 @@
 import React from "react";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-    return (
-        <div className="flex h-screen bg-gray-100">
-            {/* Sidebar */}
-            <aside className="w-64 bg-white shadow-md p-4">
-                <h2 className="text-xl font-bold mb-4">Swas Panel</h2>
-                <div id="sidebar-content" className="flex flex-col gap-2 text-sm text-gray-700">
-                    {/* Sidebar content diisi dari dashboard */}
-                </div>
-            </aside>
+interface Props {
+  children: React.ReactNode;
+  tables: string[];
+  selected: string | null;
+  onSelect: (name: string) => void;
+}
 
-            {/* Main Content */}
-            <main className="flex-1 p-6 overflow-auto">{children}</main>
+export default function Layout({ children, tables, selected, onSelect }: Props) {
+  return (
+    <div className="flex min-h-screen bg-background text-white">
+      {/* Sidebar */}
+      <aside className="w-64 bg-slate-900 p-6 border-r border-slate-700 flex flex-col">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-primary tracking-wide">
+            Swas<span className="text-white">Panel</span>
+          </h2>
+          <p className="text-xs text-slate-400 mt-1">Smart Workspace Dashboard</p>
         </div>
-    );
+        <div className="space-y-2 flex-1 overflow-y-auto">
+          {tables.map((table) => (
+            <button
+              key={table}
+              onClick={() => onSelect(table)}
+              className={`w-full text-left px-4 py-2 rounded font-medium ${
+                selected === table
+                  ? "bg-primary text-white"
+                  : "bg-slate-700 hover:bg-slate-600"
+              }`}
+            >
+              {table}
+            </button>
+          ))}
+        </div>
+        <div className="mt-8 text-xs text-slate-500 text-center">
+          &copy; {new Date().getFullYear()} SwasPanel
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 p-6 overflow-auto">{children}</main>
+    </div>
+  );
 }
