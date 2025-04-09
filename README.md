@@ -1,3 +1,3 @@
-# @stegripe/template
+# swas-panel
 
-A template to generate well-configured project base for Stegripe.
+A simple panel to audit and manage databases on Smart Workspace Attandance System project.
