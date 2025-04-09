@@ -162,27 +162,34 @@ export default function Dashboard() {
 
                                             if (isDatetime) {
                                                 return (
-                                                    <input
+                                                    <div
                                                         key={key}
-                                                        type="datetime-local"
-                                                        value={
-                                                            newData[key]
-                                                                ? new Date(newData[key])
-                                                                      .toISOString()
-                                                                      .slice(0, 16)
-                                                                : ""
-                                                        }
-                                                        onChange={(e) =>
-                                                            setNewData({
-                                                                ...newData,
-                                                                [key]: new Date(e.target.value)
-                                                                    .toISOString()
-                                                                    .slice(0, 19)
-                                                                    .replace("T", " "),
-                                                            })
-                                                        }
-                                                        className="p-2 rounded bg-slate-800 text-white border border-slate-600"
-                                                    />
+                                                        className="flex flex-col text-white"
+                                                    >
+                                                        <label className="text-sm mb-1">
+                                                            {key}
+                                                        </label>
+                                                        <input
+                                                            type="datetime-local"
+                                                            value={
+                                                                newData[key]
+                                                                    ? new Date(newData[key])
+                                                                          .toISOString()
+                                                                          .slice(0, 16)
+                                                                    : ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                setNewData({
+                                                                    ...newData,
+                                                                    [key]: new Date(e.target.value)
+                                                                        .toISOString()
+                                                                        .slice(0, 19)
+                                                                        .replace("T", " "),
+                                                                })
+                                                            }
+                                                            className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                        />
+                                                    </div>
                                                 );
                                             }
 
