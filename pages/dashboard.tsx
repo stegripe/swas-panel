@@ -97,12 +97,50 @@ export default function Dashboard() {
         }
     };
 
+    const handleDeleteTable = async () => {
+        if (!selectedTable) return;
+        if (!confirm("Yakin ingin menghapus table ini?")) return;
+
+        const res = await fetch(`/api/delete-table?table=${selectedTable}`, {
+            method: "DELETE",
+        });
+
+        if (res.ok) {
+            setSelectedTable(null);
+            loadTable(tables[0]);
+        } else {
+            alert("Gagal menghapus table");
+        }
+    }
+
     return (
         <>
             <Layout tables={tables} selected={selectedTable} onSelect={loadTable}>
                 {selectedTable && (
                     <>
-                        <h2 className="text-2xl font-bold mb-4">Table: {selectedTable}</h2>
+                        <div className="flex items-center mb-4 gap-4">
+                            <h2 className="text-2xl font-bold">Table: {selectedTable}</h2>
+                            <div className="flex space-x-2">
+                                <button
+                                    onClick={handleDeleteTable}
+                                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                                >
+                                    Delete Table
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (confirm("Yakin ingin mengupdate table ini?")) {
+                                            fetch(`/api/update-table?table=${selectedTable}`, {
+                                                method: "PUT",
+                                            }).then(() => loadTable(selectedTable));
+                                        }
+                                    }}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                                >
+                                    Update Table
+                                </button>
+                            </div>
+                        </div>
 
                         {columns.length > 0 && (
                             <div className="mb-6">

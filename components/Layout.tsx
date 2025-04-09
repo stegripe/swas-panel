@@ -11,6 +11,26 @@ interface Props {
 export default function Layout({ children, tables, selected, onSelect }: Props) {
     const [showSidebar, setShowSidebar] = useState(false);
 
+    const handleCreateTable = async () => {
+        const tableName = prompt("Enter table name:");
+        if (tableName) {
+            const res = await fetch(`/api/create-table`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ table: tableName }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                console.log("Table created:", data);
+            } else {
+                const error = await res.json();
+                console.error("Error creating table:", error);
+            }
+        }
+    };
+
     return (
         <div className="flex flex-col md:flex-row min-h-screen bg-background text-white">
             {/* Mobile topbar */}
@@ -38,6 +58,14 @@ export default function Layout({ children, tables, selected, onSelect }: Props) 
 
                 {/* Menu Tables */}
                 <div className="space-y-2 flex-1 overflow-y-auto">
+                    <button
+                        onClick={handleCreateTable}
+                        className="w-full text-left px-4 py-2 rounded font-medium bg-green-600 hover:bg-green-700"
+                    >
+                        <div className="flex items-center gap-2">
+                            Create Table
+                        </div>
+                    </button>
                     {tables.map((table) => (
                         <button
                             key={table}
