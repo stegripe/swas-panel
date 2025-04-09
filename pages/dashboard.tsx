@@ -82,10 +82,9 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="p-8">
-            <h1 className="text-2xl mb-4">Dashboard</h1>
+        <div className="min-h-screen p-8 bg-background text-white">
+            <h1 className="text-3xl font-semibold mb-6">Admin Panel</h1>
 
-            {/* List Tabel */}
             <div className="mb-6">
                 <h2 className="text-xl mb-2">Tables:</h2>
                 <div className="flex flex-wrap gap-2">
@@ -93,7 +92,11 @@ export default function Dashboard() {
                         <button
                             key={table}
                             onClick={() => loadTable(table)}
-                            className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+                            className={`px-4 py-2 rounded font-medium ${
+                                selectedTable === table
+                                    ? "bg-primary text-white"
+                                    : "bg-slate-700 hover:bg-slate-600"
+                            }`}
                         >
                             {table}
                         </button>
@@ -101,117 +104,115 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Form Tambah Data */}
             {selectedTable && (
-                <div className="mb-6">
-                    <h3 className="text-lg mb-2">Add New Data:</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
-                        {rows[0] ? (
-                            Object.keys(rows[0]).map((key) => (
-                                <input
-                                    key={key}
-                                    placeholder={key}
-                                    value={newData[key] || ""}
-                                    onChange={(e) =>
-                                        setNewData({ ...newData, [key]: e.target.value })
-                                    }
-                                    className="border p-2"
-                                />
-                            ))
-                        ) : (
-                            <p className="col-span-full text-gray-500">
-                                Data kosong. Tidak bisa tampil form karena tidak diketahui struktur
-                                kolom.
-                            </p>
-                        )}
-                    </div>
-                    {rows[0] && (
-                        <button
-                            onClick={handleCreate}
-                            className="bg-green-500 text-white px-4 py-2 rounded"
-                        >
-                            Add Data
-                        </button>
-                    )}
-                </div>
-            )}
+                <>
+                    <h2 className="text-xl mb-4">Table: {selectedTable}</h2>
 
-            {/* Isi Tabel */}
-            {selectedTable && rows.length > 0 && (
-                <div className="overflow-auto border">
-                    <table className="min-w-full border border-gray-200">
-                        <thead>
-                            <tr>
+                    {/* Form Tambah */}
+                    {rows[0] && (
+                        <div className="mb-6">
+                            <h3 className="text-lg mb-2">Add New Row:</h3>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
                                 {Object.keys(rows[0]).map((key) => (
-                                    <th key={key} className="border px-4 py-2">
-                                        {key}
-                                    </th>
+                                    <input
+                                        key={key}
+                                        placeholder={key}
+                                        value={newData[key] || ""}
+                                        onChange={(e) =>
+                                            setNewData({ ...newData, [key]: e.target.value })
+                                        }
+                                        className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                    />
                                 ))}
-                                <th className="border px-4 py-2">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rows.map((row, i) => (
-                                <tr key={i}>
-                                    {Object.keys(row).map((key) => (
-                                        <td key={key} className="border px-4 py-2">
+                            </div>
+                            <button
+                                onClick={handleCreate}
+                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                            >
+                                Add Row
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Tabel */}
+                    <div className="overflow-x-auto border border-slate-700 rounded-lg">
+                        <table className="min-w-full text-sm text-left">
+                            <thead className="bg-slate-800 text-slate-200 uppercase text-xs">
+                                <tr>
+                                    {Object.keys(rows[0] || {}).map((key) => (
+                                        <th key={key} className="px-4 py-3">
+                                            {key}
+                                        </th>
+                                    ))}
+                                    <th className="px-4 py-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rows.map((row, i) => (
+                                    <tr
+                                        key={i}
+                                        className="odd:bg-slate-900 even:bg-slate-800 border-b border-slate-700"
+                                    >
+                                        {Object.keys(row).map((key) => (
+                                            <td key={key} className="px-4 py-2">
+                                                {editIndex === i ? (
+                                                    <input
+                                                        value={editData[key] ?? row[key]}
+                                                        onChange={(e) =>
+                                                            setEditData({
+                                                                ...editData,
+                                                                [key]: e.target.value,
+                                                            })
+                                                        }
+                                                        className="bg-slate-700 text-white p-1 rounded w-full"
+                                                    />
+                                                ) : (
+                                                    String(row[key])
+                                                )}
+                                            </td>
+                                        ))}
+                                        <td className="px-4 py-2 space-x-2">
                                             {editIndex === i ? (
-                                                <input
-                                                    value={editData[key] ?? row[key]}
-                                                    onChange={(e) =>
-                                                        setEditData({
-                                                            ...editData,
-                                                            [key]: e.target.value,
-                                                        })
-                                                    }
-                                                    className="border p-1 w-full"
-                                                />
+                                                <>
+                                                    <button
+                                                        onClick={() => handleEditSave(i)}
+                                                        className="text-green-400"
+                                                    >
+                                                        💾
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setEditIndex(null)}
+                                                        className="text-gray-400"
+                                                    >
+                                                        ✖️
+                                                    </button>
+                                                </>
                                             ) : (
-                                                String(row[key])
+                                                <>
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditIndex(i);
+                                                            setEditData(rows[i]);
+                                                        }}
+                                                        className="text-blue-400"
+                                                    >
+                                                        ✏️
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(row)}
+                                                        className="text-red-400"
+                                                    >
+                                                        🗑️
+                                                    </button>
+                                                </>
                                             )}
                                         </td>
-                                    ))}
-                                    <td className="border px-4 py-2 space-x-2">
-                                        {editIndex === i ? (
-                                            <>
-                                                <button
-                                                    onClick={() => handleEditSave(i)}
-                                                    className="text-green-600"
-                                                >
-                                                    💾
-                                                </button>
-                                                <button
-                                                    onClick={() => setEditIndex(null)}
-                                                    className="text-gray-500"
-                                                >
-                                                    ✖️
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <button
-                                                    onClick={() => {
-                                                        setEditIndex(i);
-                                                        setEditData(rows[i]);
-                                                    }}
-                                                    className="text-blue-600"
-                                                >
-                                                    ✏️
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(row)}
-                                                    className="text-red-600"
-                                                >
-                                                    🗑️
-                                                </button>
-                                            </>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </>
             )}
         </div>
     );

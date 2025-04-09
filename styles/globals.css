@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Global dark theme */
+body {
+    @apply bg-background text-white;
+    font-family: "Inter", sans-serif;
+}
+
+button {
+    @apply transition duration-200;
+}
+
+table {
+    @apply bg-surface;
+}
+
+input,
+select,
+textarea {
+    @apply text-black;
+}

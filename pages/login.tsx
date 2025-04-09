@@ -20,22 +20,27 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-100">
-            <div className="bg-white p-8 rounded shadow-md w-80">
-                <h1 className="text-xl mb-4">Login</h1>
+        <div className="min-h-screen flex justify-center items-center bg-background text-white">
+            <div className="bg-surface p-8 rounded-xl shadow-lg w-[320px]">
+                <h1 className="text-2xl font-semibold mb-6 text-center text-primary">
+                    Login Admin
+                </h1>
                 <input
                     type="text"
                     placeholder="Email"
-                    className="w-full mb-2 p-2 border"
+                    className="w-full mb-4 p-2 rounded bg-slate-800 border border-slate-600 text-white"
                     onChange={(e) => setEmail(e.target.value)}
                 />
                 <input
                     type="password"
                     placeholder="Password"
-                    className="w-full mb-4 p-2 border"
+                    className="w-full mb-6 p-2 rounded bg-slate-800 border border-slate-600 text-white"
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                <button onClick={handleLogin} className="w-full bg-blue-500 text-white p-2 rounded">
+                <button
+                    onClick={handleLogin}
+                    className="w-full bg-primary hover:bg-primary.light text-white p-2 rounded font-medium"
+                >
                     Login
                 </button>
             </div>
