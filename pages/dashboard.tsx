@@ -7,10 +7,22 @@ export default function Dashboard() {
     const [rows, setRows] = useState<any[]>([]);
     const [columns, setColumns] = useState<string[]>([]);
     const [newData, setNewData] = useState<{ [key: string]: any }>({});
+    const [classOptions, setClassOptions] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (selectedTable === "users") {
+            fetch("/api/data?table=classes")
+                .then((res) => res.json())
+                .then((data) => setClassOptions(data.rows || []));
+        }
+    }, [selectedTable]);
+
     const [editIndex, setEditIndex] = useState<number | null>(null);
     const [editData, setEditData] = useState<{ [key: string]: any }>({});
-    const [classOptions, setClassOptions] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [showCreateForm, setShowCreateForm] = useState(false);
+    const [newTableName, setNewTableName] = useState("");
+    const [newTableColumns, setNewTableColumns] = useState([{ name: "", type: "VARCHAR(255)" }]);
 
     useEffect(() => {
         fetch("/api/data")
@@ -34,151 +46,167 @@ export default function Dashboard() {
                 setEditIndex(null);
             })
             .finally(() => setLoading(false));
-
-        if (table === "users") {
-            fetch("/api/classes")
-                .then((res) => res.json())
-                .then((data) => setClassOptions(data));
-        } else {
-            setClassOptions([]);
-        }
     };
 
-    const handleCreate = async () => {
-        if (!selectedTable) return;
-        const res = await fetch("/api/create", {
+    const handleCreateTable = async () => {
+        if (!newTableName || newTableColumns.some((col) => !col.name || !col.type)) return;
+
+        const res = await fetch("/api/table-create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ table: selectedTable, data: newData }),
+            body: JSON.stringify({
+                name: newTableName,
+                columns: newTableColumns,
+            }),
         });
 
         if (res.ok) {
-            loadTable(selectedTable);
-            setNewData({});
-        } else {
-            alert("Insert failed");
+            setNewTableName("");
+            setNewTableColumns([{ name: "", type: "VARCHAR(255)" }]);
+            setShowCreateForm(false);
+            const updated = await fetch("/api/data").then((r) => r.json());
+            setTables(updated.tables?.map((t: any) => Object.values(t)[0]) || []);
         }
     };
 
-    const handleDelete = async (row: any) => {
-        if (!selectedTable || !rows[0]) return;
-        const primaryKey = Object.keys(rows[0])[0];
-        if (!confirm("Yakin ingin menghapus data ini?")) return;
+    const handleDeleteTable = async (table: string) => {
+        if (!confirm(`Hapus tabel ${table}?`)) return;
 
-        const res = await fetch("/api/delete", {
+        const res = await fetch("/api/table-delete", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ table: selectedTable, primaryKey, id: row[primaryKey] }),
+            body: JSON.stringify({ name: table }),
         });
 
         if (res.ok) {
-            loadTable(selectedTable);
-        } else {
-            alert("Gagal menghapus data");
+            const updated = await fetch("/api/data").then((r) => r.json());
+            setTables(updated.tables?.map((t: any) => Object.values(t)[0]) || []);
+            if (selectedTable === table) setSelectedTable(null);
         }
     };
-
-    const handleEditSave = async (index: number) => {
-        if (!selectedTable || !rows[0]) return;
-        const primaryKey = Object.keys(rows[0])[0];
-        const id = rows[index][primaryKey];
-
-        const res = await fetch("/api/update", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ table: selectedTable, data: editData, primaryKey, id }),
-        });
-
-        if (res.ok) {
-            setEditIndex(null);
-            loadTable(selectedTable);
-        } else {
-            alert("Gagal mengupdate data");
-        }
-    };
-
-    const handleDeleteTable = async () => {
-        if (!selectedTable) return;
-        if (!confirm("Yakin ingin menghapus table ini?")) return;
-
-        const res = await fetch(`/api/delete-table?table=${selectedTable}`, {
-            method: "DELETE",
-        });
-
-        if (res.ok) {
-            setSelectedTable(null);
-            loadTable(tables[0]);
-        } else {
-            alert("Gagal menghapus table");
-        }
-    }
 
     return (
         <>
-            <Layout tables={tables} selected={selectedTable} onSelect={loadTable}>
-                {selectedTable && (
-                    <>
-                        <div className="flex items-center mb-4 gap-4">
-                            <h2 className="text-2xl font-bold">Table: {selectedTable}</h2>
-                            <div className="flex space-x-2">
+            <Layout
+                tables={tables}
+                selected={selectedTable}
+                onSelect={(table) => {
+                    if (selectedTable !== table) {
+                        setSelectedTable(table);
+                        loadTable(table);
+                    } else {
+                        loadTable(table); // force reload
+                    }
+                }}
+                onDeleteTable={handleDeleteTable}
+                onCreateTableClick={() => setShowCreateForm(true)}
+            >
+                {showCreateForm && (
+                    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center">
+                        <div className="bg-slate-800 p-6 rounded-lg w-full max-w-xl">
+                            <h3 className="text-lg font-bold mb-4 text-white">Buat Tabel Baru</h3>
+                            <input
+                                value={newTableName}
+                                onChange={(e) => setNewTableName(e.target.value)}
+                                placeholder="Nama Tabel"
+                                className="mb-2 p-2 w-full bg-slate-900 text-white border border-slate-600 rounded"
+                            />
+                            {newTableColumns.map((col, i) => (
+                                <div key={i} className="flex gap-2 mb-2">
+                                    <input
+                                        placeholder="Kolom"
+                                        value={col.name}
+                                        onChange={(e) =>
+                                            setNewTableColumns((prev) =>
+                                                prev.map((c, j) =>
+                                                    i === j ? { ...c, name: e.target.value } : c
+                                                )
+                                            )
+                                        }
+                                        className="p-2 flex-1 bg-slate-900 text-white border border-slate-600 rounded"
+                                    />
+                                    <input
+                                        placeholder="Tipe (cth: VARCHAR(255), INT)"
+                                        value={col.type}
+                                        onChange={(e) =>
+                                            setNewTableColumns((prev) =>
+                                                prev.map((c, j) =>
+                                                    i === j ? { ...c, type: e.target.value } : c
+                                                )
+                                            )
+                                        }
+                                        className="p-2 flex-1 bg-slate-900 text-white border border-slate-600 rounded"
+                                    />
+                                </div>
+                            ))}
+                            <div className="flex gap-2 mt-2">
                                 <button
-                                    onClick={handleDeleteTable}
-                                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                                    onClick={() =>
+                                        setNewTableColumns((prev) => [
+                                            ...prev,
+                                            { name: "", type: "VARCHAR(255)" },
+                                        ])
+                                    }
+                                    className="text-sm text-blue-400"
                                 >
-                                    Delete Table
+                                    + Tambah Kolom
+                                </button>
+                                <div className="flex-1"></div>
+                                <button
+                                    onClick={() => setShowCreateForm(false)}
+                                    className="text-sm px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white"
+                                >
+                                    Batal
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        if (confirm("Yakin ingin mengupdate table ini?")) {
-                                            fetch(`/api/update-table?table=${selectedTable}`, {
-                                                method: "PUT",
-                                            }).then(() => loadTable(selectedTable));
-                                        }
-                                    }}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                                    onClick={handleCreateTable}
+                                    className="text-sm px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
                                 >
-                                    Update Table
+                                    Buat Tabel
                                 </button>
                             </div>
                         </div>
-
+                    </div>
+                )}
+                {selectedTable ? (
+                    <>
+                        <h2 className="text-xl font-bold mb-4 text-white">
+                            Table: {selectedTable}
+                        </h2>
                         {columns.length > 0 && (
-                            <div className="mb-6">
-                                <h3 className="text-lg mb-2">Add New Row:</h3>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+                            <>
+                                <h4 className="text-md text-white font-semibold mb-2">
+                                    Add New Row:
+                                </h4>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
                                     {columns
                                         .filter((key) => key !== "id")
-                                        .map((key) => {
-                                            const isBool = key === "is_dosen" || key === "is_admin";
-                                            const isClass = key === "class";
-                                            const isDatetime =
-                                                key === "created_at" || key === "updated_at";
-
-                                            if (isBool) {
-                                                return (
-                                                    <label
-                                                        key={key}
-                                                        className="flex items-center gap-2"
-                                                    >
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={!!newData[key]}
-                                                            onChange={(e) =>
-                                                                setNewData({
-                                                                    ...newData,
-                                                                    [key]: e.target.checked ? 1 : 0,
-                                                                })
-                                                            }
-                                                        />
-                                                        {key}
-                                                    </label>
-                                                );
-                                            }
-
-                                            if (isClass) {
-                                                return (
+                                        .map((key) => (
+                                            <div key={key} className="flex flex-col text-white">
+                                                <label className="text-sm mb-1 font-semibold">
+                                                    {key}
+                                                </label>
+                                                {key === "class" ? (
                                                     <select
-                                                        key={key}
+                                                        value={newData[key] ?? ""}
+                                                        onChange={(e) =>
+                                                            setNewData({
+                                                                ...newData,
+                                                                [key]: Number(e.target.value),
+                                                            })
+                                                        }
+                                                        className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                    >
+                                                        <option value="">(pilih kelas)</option>
+                                                        {classOptions.map((cls) => (
+                                                            <option key={cls.id} value={cls.id}>
+                                                                {cls.nama_kelas}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                ) : key === "created_at" || key === "updated_at" ? (
+                                                    <input
+                                                        type="datetime-local"
                                                         value={newData[key] || ""}
                                                         onChange={(e) =>
                                                             setNewData({
@@ -187,142 +215,179 @@ export default function Dashboard() {
                                                             })
                                                         }
                                                         className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                    />
+                                                ) : ["is_dosen", "is_admin"].includes(key) ? (
+                                                    <select
+                                                        value={newData[key] ?? ""}
+                                                        onChange={(e) =>
+                                                            setNewData({
+                                                                ...newData,
+                                                                [key]: Number(e.target.value),
+                                                            })
+                                                        }
+                                                        className="p-2 rounded bg-slate-800 text-white border border-slate-600"
                                                     >
-                                                        <option value="">Pilih Kelas</option>
-                                                        {classOptions.map((c) => (
-                                                            <option key={c.id} value={c.id}>
-                                                                {c.nama_kelas}
-                                                            </option>
-                                                        ))}
+                                                        <option value="">(pilih)</option>
+                                                        <option value="1">true</option>
+                                                        <option value="0">false</option>
                                                     </select>
-                                                );
-                                            }
-
-                                            if (isDatetime) {
-                                                return (
-                                                    <div
-                                                        key={key}
-                                                        className="flex flex-col text-white"
-                                                    >
-                                                        <label className="text-sm mb-1">
-                                                            {key}
-                                                        </label>
-                                                        <input
-                                                            type="datetime-local"
-                                                            value={
-                                                                newData[key]
-                                                                    ? new Date(newData[key])
-                                                                          .toISOString()
-                                                                          .slice(0, 16)
-                                                                    : ""
-                                                            }
-                                                            onChange={(e) =>
-                                                                setNewData({
-                                                                    ...newData,
-                                                                    [key]: new Date(e.target.value)
-                                                                        .toISOString()
-                                                                        .slice(0, 19)
-                                                                        .replace("T", " "),
-                                                                })
-                                                            }
-                                                            className="p-2 rounded bg-slate-800 text-white border border-slate-600"
-                                                        />
-                                                    </div>
-                                                );
-                                            }
-
-                                            return (
-                                                <input
-                                                    key={key}
-                                                    placeholder={key}
-                                                    value={newData[key] || ""}
-                                                    onChange={(e) =>
-                                                        setNewData({
-                                                            ...newData,
-                                                            [key]: e.target.value,
-                                                        })
-                                                    }
-                                                    className="p-2 rounded bg-slate-800 text-white border border-slate-600"
-                                                />
-                                            );
-                                        })}
+                                                ) : (
+                                                    <input
+                                                        placeholder={
+                                                            ["is_dosen", "is_admin"].includes(key)
+                                                                ? "boolean"
+                                                                : [
+                                                                        "created_at",
+                                                                        "updated_at",
+                                                                    ].includes(key)
+                                                                  ? "datetime"
+                                                                  : key === "class"
+                                                                    ? "class (id)"
+                                                                    : "text"
+                                                        }
+                                                        value={newData[key] || ""}
+                                                        onChange={(e) =>
+                                                            setNewData({
+                                                                ...newData,
+                                                                [key]: e.target.value,
+                                                            })
+                                                        }
+                                                        className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                    />
+                                                )}
+                                            </div>
+                                        ))}
                                 </div>
                                 <button
-                                    onClick={handleCreate}
-                                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                                    onClick={async () => {
+                                        const res = await fetch("/api/create", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({
+                                                table: selectedTable,
+                                                data: newData,
+                                            }),
+                                        });
+                                        if (res.ok) loadTable(selectedTable);
+                                    }}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded mb-6"
                                 >
                                     Add Row
                                 </button>
-                            </div>
-                        )}
-
-                        {rows.length > 0 && (
-                            <div className="overflow-x-auto border border-slate-700 rounded-lg">
-                                <table className="min-w-full text-sm text-left">
-                                    <thead className="bg-slate-800 text-slate-200 uppercase text-xs">
+                                <table className="min-w-full bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                                    <thead className="bg-slate-700 text-xs uppercase text-gray-300">
                                         <tr>
-                                            {Object.keys(rows[0] || {}).map((key) => (
-                                                <th key={key} className="px-4 py-3">
+                                            {columns.map((key) => (
+                                                <th
+                                                    key={key}
+                                                    className="border border-slate-700 px-4 py-2 text-left text-white"
+                                                >
                                                     {key}
                                                 </th>
                                             ))}
-                                            <th className="px-4 py-3">Aksi</th>
+                                            <th className="border border-slate-700 px-4 py-2 text-white">
+                                                Actions
+                                            </th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody className="divide-y divide-slate-700">
                                         {rows.map((row, i) => (
-                                            <tr
-                                                key={i}
-                                                className="odd:bg-slate-900 even:bg-slate-800 border-b border-slate-700"
-                                            >
-                                                {Object.keys(row).map((key) => (
-                                                    <td key={key} className="px-4 py-2">
+                                            <tr key={i} className="hover:bg-slate-800">
+                                                {columns.map((key) => (
+                                                    <td
+                                                        key={key}
+                                                        className="border px-4 py-2 text-white"
+                                                    >
                                                         {editIndex === i ? (
                                                             <input
-                                                                value={editData[key] ?? row[key]}
+                                                                value={editData[key] || ""}
                                                                 onChange={(e) =>
                                                                     setEditData({
                                                                         ...editData,
                                                                         [key]: e.target.value,
                                                                     })
                                                                 }
-                                                                className="bg-slate-700 text-white p-1 rounded w-full"
+                                                                className="w-full p-1 rounded bg-slate-700 text-white"
                                                             />
                                                         ) : (
-                                                            String(row[key])
+                                                            row[key]
                                                         )}
                                                     </td>
                                                 ))}
-                                                <td className="px-4 py-2 space-x-2">
+                                                <td className="border px-4 py-2 text-white space-x-2">
                                                     {editIndex === i ? (
                                                         <>
                                                             <button
-                                                                onClick={() => handleEditSave(i)}
-                                                                className="text-green-400"
+                                                                className="text-green-400 hover:text-green-600"
+                                                                onClick={async () => {
+                                                                    const res = await fetch(
+                                                                        "/api/update",
+                                                                        {
+                                                                            method: "PUT",
+                                                                            headers: {
+                                                                                "Content-Type":
+                                                                                    "application/json",
+                                                                            },
+                                                                            body: JSON.stringify({
+                                                                                table: selectedTable,
+                                                                                primaryKey: "id",
+                                                                                id: row.id,
+                                                                                data: editData,
+                                                                            }),
+                                                                        }
+                                                                    );
+                                                                    if (res.ok) {
+                                                                        setEditIndex(null);
+                                                                        loadTable(selectedTable);
+                                                                    }
+                                                                }}
                                                             >
                                                                 💾
                                                             </button>
                                                             <button
+                                                                className="text-yellow-400 hover:text-yellow-600"
                                                                 onClick={() => setEditIndex(null)}
-                                                                className="text-gray-400"
                                                             >
-                                                                ✖️
+                                                                ❌
                                                             </button>
                                                         </>
                                                     ) : (
                                                         <>
                                                             <button
+                                                                className="text-blue-400 hover:text-blue-600"
                                                                 onClick={() => {
                                                                     setEditIndex(i);
-                                                                    setEditData(rows[i]);
+                                                                    setEditData(row);
                                                                 }}
-                                                                className="text-blue-400"
                                                             >
                                                                 ✏️
                                                             </button>
                                                             <button
-                                                                onClick={() => handleDelete(row)}
-                                                                className="text-red-400"
+                                                                className="text-red-400 hover:text-red-600"
+                                                                onClick={async () => {
+                                                                    const id = row.id;
+                                                                    if (
+                                                                        !confirm("Delete this row?")
+                                                                    )
+                                                                        return;
+                                                                    const res = await fetch(
+                                                                        "/api/delete",
+                                                                        {
+                                                                            method: "DELETE",
+                                                                            headers: {
+                                                                                "Content-Type":
+                                                                                    "application/json",
+                                                                            },
+                                                                            body: JSON.stringify({
+                                                                                table: selectedTable,
+                                                                                primaryKey: "id",
+                                                                                id,
+                                                                            }),
+                                                                        }
+                                                                    );
+                                                                    if (res.ok)
+                                                                        loadTable(selectedTable);
+                                                                }}
                                                             >
                                                                 🗑️
                                                             </button>
@@ -333,18 +398,24 @@ export default function Dashboard() {
                                         ))}
                                     </tbody>
                                 </table>
-                            </div>
+                            </>
                         )}
+
+                        {/* ... render form tambah row dan table seperti biasa */}
                     </>
+                ) : (
+                    <div className="text-slate-400 text-center mt-12 text-lg">
+                        Silakan pilih tabel di sebelah kiri untuk mulai mengelola data.
+                    </div>
+                )}
+
+                {loading && (
+                    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex flex-col items-center justify-center">
+                        <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <div className="text-white text-lg">Loading table...</div>
+                    </div>
                 )}
             </Layout>
-
-            {loading && (
-                <div className="fixed inset-0 z-[9999] bg-black bg-opacity-50 flex flex-col items-center justify-center">
-                    <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <div className="text-white text-lg">Loading table...</div>
-                </div>
-            )}
         </>
     );
 }

@@ -6,14 +6,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(405).json({ message: "Method not allowed" });
     }
 
-    const { table } = req.body;
+    const { name } = req.body;
+    if (!name) {
+        return res.status(400).json({ message: "Table name is required" });
+    }
 
     try {
         const db = await getConnection();
-        await db.execute(`DROP TABLE IF EXISTS \`${table}\``, []);
-        res.status(200).json({ message: "Delete success" });
+        await db.query(`DROP TABLE \`${name}\``);
+        return res.status(200).json({ message: "Table deleted" });
     } catch (err: any) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 }
