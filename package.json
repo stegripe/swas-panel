@@ -9,6 +9,7 @@
         "start": "next start"
     },
     "dependencies": {
+        "lucide-react": "^0.487.0",
         "mysql2": "^3.9.2",
         "next": "^15.2.5",
         "react": "18.2.0",
