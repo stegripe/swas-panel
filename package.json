@@ -2,8 +2,8 @@
     "name": "swas-panel",
     "version": "1.0.0",
     "scripts": {
-        "dev": "pnpm exec next dev",
         "build": "next build",
+        "dev": "next dev",
         "start": "next start"
     },
     "dependencies": {
