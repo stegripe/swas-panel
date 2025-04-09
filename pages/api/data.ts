@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getConnection } from '../../lib/db';
+import { NextApiRequest, NextApiResponse } from "next";
+import { getConnection } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const db = await getConnection();
@@ -10,21 +10,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (!table) {
             // Kalau tidak ada, kirim daftar semua tabel
-            const [tables] = await db.query('SHOW TABLES');
+            const [tables] = await db.query("SHOW TABLES");
             res.status(200).json({
-                tables
+                tables,
             });
         } else {
             // Kalau ada, ambil isi tabelnya
             const [rows] = await db.query(`SELECT * FROM \`${table}\` LIMIT 100`);
             res.status(200).json({
-                rows
+                rows,
             });
         }
     } catch (err: any) {
         console.error(err);
         res.status(500).json({
-            error: err.message
+            error: err.message,
         });
     } finally {
         await db.end();

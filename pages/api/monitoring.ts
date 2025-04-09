@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getConnection } from '../../lib/db';
+import { NextApiRequest, NextApiResponse } from "next";
+import { getConnection } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {

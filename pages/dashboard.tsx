@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export default function Dashboard() {
     const [tables, setTables] = useState<string[]>([]);
@@ -9,9 +9,9 @@ export default function Dashboard() {
     const [editData, setEditData] = useState<{ [key: string]: any }>({});
 
     useEffect(() => {
-        fetch('/api/data')
-            .then(res => res.json())
-            .then(data => {
+        fetch("/api/data")
+            .then((res) => res.json())
+            .then((data) => {
                 const tableNames = data.tables?.map((t: any) => Object.values(t)[0]) || [];
                 setTables(tableNames);
             });
@@ -20,8 +20,8 @@ export default function Dashboard() {
     const loadTable = (table: string) => {
         setSelectedTable(table);
         fetch(`/api/data?table=${table}`)
-            .then(res => res.json())
-            .then(data => {
+            .then((res) => res.json())
+            .then((data) => {
                 setRows(data.rows || []);
                 setNewData({});
                 setEditIndex(null);
@@ -30,35 +30,35 @@ export default function Dashboard() {
 
     const handleCreate = async () => {
         if (!selectedTable) return;
-        const res = await fetch('/api/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ table: selectedTable, data: newData })
+        const res = await fetch("/api/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ table: selectedTable, data: newData }),
         });
 
         if (res.ok) {
             loadTable(selectedTable);
             setNewData({});
         } else {
-            alert('Insert failed');
+            alert("Insert failed");
         }
     };
 
     const handleDelete = async (row: any) => {
         if (!selectedTable || !rows[0]) return;
         const primaryKey = Object.keys(rows[0])[0];
-        if (!confirm('Yakin ingin menghapus data ini?')) return;
+        if (!confirm("Yakin ingin menghapus data ini?")) return;
 
-        const res = await fetch('/api/delete', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ table: selectedTable, primaryKey, id: row[primaryKey] })
+        const res = await fetch("/api/delete", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ table: selectedTable, primaryKey, id: row[primaryKey] }),
         });
 
         if (res.ok) {
             loadTable(selectedTable);
         } else {
-            alert('Gagal menghapus data');
+            alert("Gagal menghapus data");
         }
     };
 
@@ -67,17 +67,17 @@ export default function Dashboard() {
         const primaryKey = Object.keys(rows[0])[0];
         const id = rows[index][primaryKey];
 
-        const res = await fetch('/api/update', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ table: selectedTable, data: editData, primaryKey, id })
+        const res = await fetch("/api/update", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ table: selectedTable, data: editData, primaryKey, id }),
         });
 
         if (res.ok) {
             setEditIndex(null);
             loadTable(selectedTable);
         } else {
-            alert('Gagal mengupdate data');
+            alert("Gagal mengupdate data");
         }
     };
 
@@ -90,8 +90,11 @@ export default function Dashboard() {
                 <h2 className="text-xl mb-2">Tables:</h2>
                 <div className="flex flex-wrap gap-2">
                     {tables.map((table) => (
-                        <button key={table} onClick={() => loadTable(table)}
-                            className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">
+                        <button
+                            key={table}
+                            onClick={() => loadTable(table)}
+                            className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+                        >
                             {table}
                         </button>
                     ))}
@@ -103,17 +106,30 @@ export default function Dashboard() {
                 <div className="mb-6">
                     <h3 className="text-lg mb-2">Add New Data:</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
-                        {rows[0]
-                            ? Object.keys(rows[0]).map((key) => (
-                                <input key={key} placeholder={key} value={newData[key] || ''}
-                                    onChange={(e) => setNewData({ ...newData, [key]: e.target.value })}
+                        {rows[0] ? (
+                            Object.keys(rows[0]).map((key) => (
+                                <input
+                                    key={key}
+                                    placeholder={key}
+                                    value={newData[key] || ""}
+                                    onChange={(e) =>
+                                        setNewData({ ...newData, [key]: e.target.value })
+                                    }
                                     className="border p-2"
                                 />
                             ))
-                            : <p className="col-span-full text-gray-500">Data kosong. Tidak bisa tampil form karena tidak diketahui struktur kolom.</p>}
+                        ) : (
+                            <p className="col-span-full text-gray-500">
+                                Data kosong. Tidak bisa tampil form karena tidak diketahui struktur
+                                kolom.
+                            </p>
+                        )}
                     </div>
                     {rows[0] && (
-                        <button onClick={handleCreate} className="bg-green-500 text-white px-4 py-2 rounded">
+                        <button
+                            onClick={handleCreate}
+                            className="bg-green-500 text-white px-4 py-2 rounded"
+                        >
                             Add Data
                         </button>
                     )}
@@ -127,7 +143,9 @@ export default function Dashboard() {
                         <thead>
                             <tr>
                                 {Object.keys(rows[0]).map((key) => (
-                                    <th key={key} className="border px-4 py-2">{key}</th>
+                                    <th key={key} className="border px-4 py-2">
+                                        {key}
+                                    </th>
                                 ))}
                                 <th className="border px-4 py-2">Actions</th>
                             </tr>
@@ -141,7 +159,10 @@ export default function Dashboard() {
                                                 <input
                                                     value={editData[key] ?? row[key]}
                                                     onChange={(e) =>
-                                                        setEditData({ ...editData, [key]: e.target.value })
+                                                        setEditData({
+                                                            ...editData,
+                                                            [key]: e.target.value,
+                                                        })
                                                     }
                                                     className="border p-1 w-full"
                                                 />
@@ -153,16 +174,36 @@ export default function Dashboard() {
                                     <td className="border px-4 py-2 space-x-2">
                                         {editIndex === i ? (
                                             <>
-                                                <button onClick={() => handleEditSave(i)} className="text-green-600">💾</button>
-                                                <button onClick={() => setEditIndex(null)} className="text-gray-500">✖️</button>
+                                                <button
+                                                    onClick={() => handleEditSave(i)}
+                                                    className="text-green-600"
+                                                >
+                                                    💾
+                                                </button>
+                                                <button
+                                                    onClick={() => setEditIndex(null)}
+                                                    className="text-gray-500"
+                                                >
+                                                    ✖️
+                                                </button>
                                             </>
                                         ) : (
                                             <>
-                                                <button onClick={() => {
-                                                    setEditIndex(i);
-                                                    setEditData(rows[i]);
-                                                }} className="text-blue-600">✏️</button>
-                                                <button onClick={() => handleDelete(row)} className="text-red-600">🗑️</button>
+                                                <button
+                                                    onClick={() => {
+                                                        setEditIndex(i);
+                                                        setEditData(rows[i]);
+                                                    }}
+                                                    className="text-blue-600"
+                                                >
+                                                    ✏️
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(row)}
+                                                    className="text-red-600"
+                                                >
+                                                    🗑️
+                                                </button>
                                             </>
                                         )}
                                     </td>

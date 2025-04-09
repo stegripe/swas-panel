@@ -4,6 +4,8 @@
     "scripts": {
         "build": "next build",
         "dev": "next dev --turbopack",
+        "format": "prettier --write .",
+        "lint": "next lint",
         "start": "next start"
     },
     "dependencies": {
@@ -17,7 +19,10 @@
         "@types/node": "22.14.0",
         "@types/react": "19.1.0",
         "autoprefixer": "^10.4.14",
+        "eslint": "^8.56.0",
+        "eslint-config-next": "13.4.12",
         "postcss": "^8.4.21",
+        "prettier": "^3.2.5",
         "typescript": "^5.0.0"
     }
 }

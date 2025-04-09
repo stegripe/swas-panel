@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export default function MonitoringAbsensi() {
     const [data, setData] = useState<any[]>([]);
 
     useEffect(() => {
-        fetch('/api/monitoring')
-            .then(res => res.json())
-            .then(res => setData(res.data || []));
+        fetch("/api/monitoring")
+            .then((res) => res.json())
+            .then((res) => setData(res.data || []));
     }, []);
 
     const goToLogin = () => {
-        window.location.href = '/login';
+        window.location.href = "/login";
     };
 
     return (
@@ -39,12 +39,14 @@ export default function MonitoringAbsensi() {
                         <tr key={i} className="text-center">
                             <td className="border px-4 py-2">{item.name}</td>
                             <td className="border px-4 py-2">{item.nim}</td>
-                            <td className="border px-4 py-2">{item.nama_kelas || '-'}</td>
+                            <td className="border px-4 py-2">{item.nama_kelas || "-"}</td>
                             <td className="border px-4 py-2">
-                                {item.last_attendance ? 'Hadir' : 'Belum Hadir'}
+                                {item.last_attendance ? "Hadir" : "Belum Hadir"}
                             </td>
                             <td className="border px-4 py-2">
-                                {item.last_attendance ? new Date(item.last_attendance).toLocaleTimeString() : '-'}
+                                {item.last_attendance
+                                    ? new Date(item.last_attendance).toLocaleTimeString()
+                                    : "-"}
                             </td>
                         </tr>
                     ))}
