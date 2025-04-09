@@ -2,31 +2,36 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getConnection } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const db = await getConnection();
-
     try {
-        // Cek parameter tabel yang diminta (misalnya: /api/data?table=users)
-        const table = req.query.table as string;
+        const db = await getConnection();
 
-        if (!table) {
-            // Kalau tidak ada, kirim daftar semua tabel
-            const [tables] = await db.query("SHOW TABLES");
-            res.status(200).json({
-                tables,
-            });
-        } else {
-            // Kalau ada, ambil isi tabelnya
-            const [rows] = await db.query(`SELECT * FROM \`${table}\` LIMIT 100`);
-            res.status(200).json({
-                rows,
-            });
+        if (req.method === "GET") {
+            const tableName = req.query.table as string;
+
+            if (!tableName) {
+                // Ambil list tabel
+                const [tables] = await db.query("SHOW TABLES");
+                return res.status(200).json({ tables });
+            }
+
+            // Ambil data
+            const [rows] = await db.query(`SELECT * FROM \`${tableName}\` LIMIT 100`);
+
+            // Ambil struktur kolom jika kosong
+            let columns: string[] = [];
+            if (rows.length === 0) {
+                const [desc] = await db.query(`DESCRIBE \`${tableName}\``);
+                columns = (desc as any[]).map((col) => col.Field);
+            } else {
+                columns = Object.keys(rows[0]);
+            }
+
+            return res.status(200).json({ rows, columns });
         }
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).json({
-            error: err.message,
-        });
-    } finally {
-        await db.end();
+
+        res.status(405).json({ message: "Method not allowed" });
+    } catch (error: any) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
     }
 }
