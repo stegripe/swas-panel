@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { RowDataPacket } from "mysql2";
 import { getConnection } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -15,7 +16,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             // Ambil data
-            const [rows] = await db.query(`SELECT * FROM \`${tableName}\` LIMIT 100`);
+            const [rows] = await db.query<RowDataPacket[]>(
+                `SELECT * FROM \`${tableName}\` LIMIT 100`
+            );
 
             // Ambil struktur kolom jika kosong
             let columns: string[] = [];
