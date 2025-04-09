@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "scripts": {
         "build": "next build",
-        "dev": "next dev",
+        "dev": "next dev --turbopack",
         "start": "next start"
     },
     "dependencies": {
