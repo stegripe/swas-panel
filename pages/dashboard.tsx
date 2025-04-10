@@ -19,6 +19,21 @@ export default function Dashboard() {
 
     const [editIndex, setEditIndex] = useState<number | null>(null);
     const [editData, setEditData] = useState<{ [key: string]: any }>({});
+    const exportToCSV = () => {
+        if (!rows.length || !columns.length) return;
+        const csvContent = [
+            columns.join(","),
+            ...rows.map((row) => columns.map((col) => `"${row[col] ?? ""}"`).join(",")),
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `table-${selectedTable}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
     const [loading, setLoading] = useState<boolean>(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [newTableName, setNewTableName] = useState("");
@@ -274,6 +289,17 @@ export default function Dashboard() {
                                 >
                                     Add Row
                                 </button>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-xl font-bold text-white">
+                                        Table: {selectedTable}
+                                    </h2>
+                                    <button
+                                        onClick={exportToCSV}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
+                                    >
+                                        Export CSV
+                                    </button>
+                                </div>
                                 <table className="min-w-full bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
                                     <thead className="bg-slate-700 text-xs uppercase text-gray-300">
                                         <tr>
