@@ -1,27 +1,25 @@
-version: "3.8"
-
 services:
-  panel:
-    build: .
-    container_name: swas-panel
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    depends_on:
-      - mariadb
+    panel:
+        build: .
+        container_name: swas-panel
+        ports:
+            - "3000:3000"
+        env_file:
+            - .env
+        depends_on:
+            - mariadb
 
-  mariadb:
-    image: mariadb:10.11
-    container_name: swas-mariadb
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./mariadb-my.cnf:/etc/mysql/conf.d/my.cnf
-    ports:
-      - "3306:3306"
+    mariadb:
+        image: mariadb:10.11
+        container_name: swas-mariadb
+        restart: always
+        env_file:
+            - .env
+        volumes:
+            - db_data:/var/lib/mysql
+            - ./mariadb-my.cnf:/etc/mysql/conf.d/my.cnf
+        ports:
+            - "3306:3306"
 
 volumes:
-  db_data:
+    db_data:
