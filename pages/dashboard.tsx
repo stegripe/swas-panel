@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import ColumnManagerModal from "../components/columnManagerModal";
 
 export default function Dashboard() {
     const [tables, setTables] = useState<string[]>([]);
@@ -38,6 +39,7 @@ export default function Dashboard() {
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [newTableName, setNewTableName] = useState("");
     const [newTableColumns, setNewTableColumns] = useState([{ name: "", type: "VARCHAR(255)" }]);
+    const [showColumnModal, setShowColumnModal] = useState(false);
 
     useEffect(() => {
         fetch("/api/data")
@@ -369,15 +371,20 @@ export default function Dashboard() {
                                     Add Row
                                 </button>
                                 <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-xl font-bold text-white">
-                                        Table: {selectedTable}
-                                    </h2>
-                                    <button
-                                        onClick={exportToCSV}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
-                                    >
-                                        Export CSV
-                                    </button>
+                                    <div>
+                                        <button
+                                            onClick={() => setShowColumnModal(true)}
+                                            className="bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-3 py-1 rounded mr-2"
+                                        >
+                                            🛠️ Kelola Kolom
+                                        </button>
+                                        <button
+                                            onClick={exportToCSV}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
+                                        >
+                                            Export CSV
+                                        </button>
+                                    </div>
                                 </div>
                                 <table className="min-w-full bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
                                     <thead className="bg-slate-700 text-xs uppercase text-gray-300">
@@ -514,6 +521,14 @@ export default function Dashboard() {
                     </div>
                 )}
 
+                {showColumnModal && (
+                    <ColumnManagerModal
+                        table={selectedTable}
+                        columns={columns.map((col) => ({ name: col, type: "TEXT" }))}
+                        onClose={() => setShowColumnModal(false)}
+                        onRefresh={() => loadTable(selectedTable!)}
+                    />
+                )}
                 {loading && (
                     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex flex-col items-center justify-center">
                         <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mb-4"></div>
