@@ -18,6 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await db.query(`CREATE TABLE \`${name}\` (${cols})`);
         return res.status(200).json({ message: "Table created" });
     } catch (err: any) {
+        console.error(err);
         return res.status(500).json({ error: err.message });
     }
 }

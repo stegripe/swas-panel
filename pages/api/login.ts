@@ -27,6 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.setHeader("Set-Cookie", `user=1; Path=/; HttpOnly`);
         res.status(200).json({ message: "Login success" });
     } catch (err: any) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ error: err.message });
     }
 }

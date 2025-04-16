@@ -34,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         res.status(200).json({ message: "Insert success" });
     } catch (err: any) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ error: err.message });
     }
 }
