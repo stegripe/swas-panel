@@ -1,4 +1,3 @@
-# Base image untuk build dan runtime
 FROM node:22-alpine AS base
 
 RUN npm install -g pnpm
