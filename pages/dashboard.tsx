@@ -188,6 +188,85 @@ export default function Dashboard() {
                         <h2 className="text-xl font-bold mb-4 text-white">
                             Table: {selectedTable}
                         </h2>
+
+                        {selectedTable === "users" && (
+                            <div className="mb-8">
+                                <h3 className="text-lg font-semibold mb-2">Tambah Pengguna Baru</h3>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                    <input
+                                        placeholder="Nama"
+                                        value={newData.name || ""}
+                                        onChange={(e) =>
+                                            setNewData({ ...newData, name: e.target.value })
+                                        }
+                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded"
+                                    />
+                                    <input
+                                        placeholder="Email"
+                                        type="email"
+                                        value={newData.email || ""}
+                                        onChange={(e) =>
+                                            setNewData({ ...newData, email: e.target.value })
+                                        }
+                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded"
+                                    />
+                                    <input
+                                        placeholder="Password"
+                                        type="password"
+                                        value={newData.password || ""}
+                                        onChange={(e) =>
+                                            setNewData({ ...newData, password: e.target.value })
+                                        }
+                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded"
+                                    />
+                                    <select
+                                        value={newData.is_admin ?? ""}
+                                        onChange={(e) =>
+                                            setNewData({
+                                                ...newData,
+                                                is_admin: Number(e.target.value),
+                                            })
+                                        }
+                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded"
+                                    >
+                                        <option value="">Admin?</option>
+                                        <option value="1">Ya</option>
+                                        <option value="0">Tidak</option>
+                                    </select>
+                                    <select
+                                        value={newData.is_dosen ?? ""}
+                                        onChange={(e) =>
+                                            setNewData({
+                                                ...newData,
+                                                is_dosen: Number(e.target.value),
+                                            })
+                                        }
+                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded"
+                                    >
+                                        <option value="">Dosen?</option>
+                                        <option value="1">Ya</option>
+                                        <option value="0">Tidak</option>
+                                    </select>
+                                </div>
+                                <button
+                                    onClick={async () => {
+                                        const res = await fetch("/api/create", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({
+                                                table: selectedTable,
+                                                data: newData,
+                                            }),
+                                        });
+                                        if (res.ok) loadTable(selectedTable);
+                                    }}
+                                    className="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                                >
+                                    Tambah Pengguna
+                                </button>
+                            </div>
+                        )}
+
                         {columns.length > 0 && (
                             <>
                                 <h4 className="text-md text-white font-semibold mb-2">
