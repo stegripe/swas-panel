@@ -25,17 +25,14 @@ export default function Dashboard() {
         }
     }, [selectedTable]);
 
-    const exportToCSV = () => {
-        if (!rows.length || !columns.length) return;
-        const csvContent = [
-            columns.join(","),
-            ...rows.map((row) => columns.map((col) => `"${row[col] ?? ""}"`).join(",")),
-        ].join("\n");
-
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const exportToExcel = async () => {
+        if (!selectedTable) return;
+        const res = await fetch(`/api/export-excel?table=${selectedTable}`);
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `table-${selectedTable}.csv`);
+        link.href = url;
+        link.setAttribute("download", `table-${selectedTable}.xlsx`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -379,10 +376,10 @@ export default function Dashboard() {
                                             🛠️ Kelola Kolom
                                         </button>
                                         <button
-                                            onClick={exportToCSV}
+                                            onClick={exportToExcel}
                                             className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
                                         >
-                                            Export CSV
+                                            Export Excel
                                         </button>
                                     </div>
                                 </div>
