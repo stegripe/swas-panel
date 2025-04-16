@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function LoginPage() {
+export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -12,7 +12,6 @@ export default function LoginPage() {
         });
 
         if (res.ok) {
-            document.cookie = "token=1"; // dummy token
             window.location.href = "/dashboard";
         } else {
             alert("Login gagal");
@@ -26,16 +25,18 @@ export default function LoginPage() {
                     Login Admin
                 </h1>
                 <input
-                    type="text"
+                    type="email"
                     placeholder="Email"
-                    className="w-full mb-4 p-2 rounded bg-slate-800 border border-slate-600 text-white"
+                    value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="w-full p-2 mb-4 rounded bg-slate-800 border border-slate-600 text-white"
                 />
                 <input
                     type="password"
                     placeholder="Password"
-                    className="w-full mb-6 p-2 rounded bg-slate-800 border border-slate-600 text-white"
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="w-full p-2 mb-6 rounded bg-slate-800 border border-slate-600 text-white"
                 />
                 <button
                     onClick={handleLogin}
