@@ -9,6 +9,13 @@ export default function Dashboard() {
     const [columns, setColumns] = useState<string[]>([]);
     const [newData, setNewData] = useState<{ [key: string]: any }>({});
     const [classOptions, setClassOptions] = useState<any[]>([]);
+    const [editIndex, setEditIndex] = useState<number | null>(null);
+    const [editData, setEditData] = useState<{ [key: string]: any }>({});
+    const [loading, setLoading] = useState<boolean>(false);
+    const [showCreateForm, setShowCreateForm] = useState(false);
+    const [newTableName, setNewTableName] = useState("");
+    const [newTableColumns, setNewTableColumns] = useState([{ name: "", type: "VARCHAR(255)" }]);
+    const [showColumnModal, setShowColumnModal] = useState(false);
 
     useEffect(() => {
         if (selectedTable === "users") {
@@ -18,8 +25,6 @@ export default function Dashboard() {
         }
     }, [selectedTable]);
 
-    const [editIndex, setEditIndex] = useState<number | null>(null);
-    const [editData, setEditData] = useState<{ [key: string]: any }>({});
     const exportToCSV = () => {
         if (!rows.length || !columns.length) return;
         const csvContent = [
@@ -35,11 +40,6 @@ export default function Dashboard() {
         link.click();
         document.body.removeChild(link);
     };
-    const [loading, setLoading] = useState<boolean>(false);
-    const [showCreateForm, setShowCreateForm] = useState(false);
-    const [newTableName, setNewTableName] = useState("");
-    const [newTableColumns, setNewTableColumns] = useState([{ name: "", type: "VARCHAR(255)" }]);
-    const [showColumnModal, setShowColumnModal] = useState(false);
 
     useEffect(() => {
         fetch("/api/data")
