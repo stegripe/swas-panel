@@ -54,32 +54,34 @@ export default function ColumnManagerModal({
                 <h3 className="text-lg font-bold mb-4 text-white">Kelola Kolom: {table}</h3>
 
                 <div className="space-y-3 max-h-80 overflow-y-auto">
-                    {columns.map((col, idx) => (
-                        <div key={idx} className="flex gap-2">
-                            <input
-                                defaultValue={col.name}
-                                onBlur={(e) =>
-                                    e.target.value !== col.name &&
-                                    updateColumn(col.name, e.target.value, col.type)
-                                }
-                                className="bg-slate-900 border border-slate-600 text-white rounded px-2 py-1 flex-1"
-                            />
-                            <input
-                                defaultValue={col.type}
-                                onBlur={(e) =>
-                                    e.target.value !== col.type &&
-                                    updateColumn(col.name, col.name, e.target.value)
-                                }
-                                className="bg-slate-900 border border-slate-600 text-white rounded px-2 py-1 flex-1"
-                            />
-                            <button
-                                onClick={() => deleteColumn(col.name)}
-                                className="text-red-400 hover:text-red-600"
-                            >
-                                🗑️
-                            </button>
-                        </div>
-                    ))}
+                    {columns
+                        .filter((col) => col.name !== "id")
+                        .map((col, idx) => (
+                            <div key={idx} className="flex gap-2">
+                                <input
+                                    defaultValue={col.name}
+                                    onBlur={(e) =>
+                                        e.target.value !== col.name &&
+                                        updateColumn(col.name, e.target.value, col.type)
+                                    }
+                                    className="bg-slate-900 border border-slate-600 text-white rounded px-2 py-1 flex-1"
+                                />
+                                <input
+                                    defaultValue={col.type}
+                                    onBlur={(e) =>
+                                        e.target.value !== col.type &&
+                                        updateColumn(col.name, col.name, e.target.value)
+                                    }
+                                    className="bg-slate-900 border border-slate-600 text-white rounded px-2 py-1 flex-1"
+                                />
+                                <button
+                                    onClick={() => deleteColumn(col.name)}
+                                    className="text-red-400 hover:text-red-600"
+                                >
+                                    🗑️
+                                </button>
+                            </div>
+                        ))}
                 </div>
 
                 <hr className="my-4 border-slate-600" />

@@ -389,14 +389,16 @@ export default function Dashboard() {
                                 <table className="min-w-full bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
                                     <thead className="bg-slate-700 text-xs uppercase text-gray-300">
                                         <tr>
-                                            {columns.map((key) => (
-                                                <th
-                                                    key={key}
-                                                    className="border border-slate-700 px-4 py-2 text-left text-white"
-                                                >
-                                                    {key}
-                                                </th>
-                                            ))}
+                                            {columns
+                                                .filter((key) => key !== "id")
+                                                .map((key) => (
+                                                    <th
+                                                        key={key}
+                                                        className="border border-slate-700 px-4 py-2 text-left text-white"
+                                                    >
+                                                        {key}
+                                                    </th>
+                                                ))}
                                             <th className="border border-slate-700 px-4 py-2 text-white">
                                                 Actions
                                             </th>
@@ -405,27 +407,29 @@ export default function Dashboard() {
                                     <tbody className="divide-y divide-slate-700">
                                         {rows.map((row, i) => (
                                             <tr key={i} className="hover:bg-slate-800">
-                                                {columns.map((key) => (
-                                                    <td
-                                                        key={key}
-                                                        className="border px-4 py-2 text-white"
-                                                    >
-                                                        {editIndex === i ? (
-                                                            <input
-                                                                value={editData[key] || ""}
-                                                                onChange={(e) =>
-                                                                    setEditData({
-                                                                        ...editData,
-                                                                        [key]: e.target.value,
-                                                                    })
-                                                                }
-                                                                className="w-full p-1 rounded bg-slate-700 text-white"
-                                                            />
-                                                        ) : (
-                                                            row[key]
-                                                        )}
-                                                    </td>
-                                                ))}
+                                                {columns
+                                                    .filter((key) => key !== "id")
+                                                    .map((key) => (
+                                                        <td
+                                                            key={key}
+                                                            className="border px-4 py-2 text-white"
+                                                        >
+                                                            {editIndex === i ? (
+                                                                <input
+                                                                    value={editData[key] || ""}
+                                                                    onChange={(e) =>
+                                                                        setEditData({
+                                                                            ...editData,
+                                                                            [key]: e.target.value,
+                                                                        })
+                                                                    }
+                                                                    className="w-full p-1 rounded bg-slate-700 text-white"
+                                                                />
+                                                            ) : (
+                                                                row[key]
+                                                            )}
+                                                        </td>
+                                                    ))}
                                                 <td className="border px-4 py-2 text-white space-x-2">
                                                     {editIndex === i ? (
                                                         <>
