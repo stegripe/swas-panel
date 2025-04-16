@@ -21,7 +21,7 @@ export default function ColumnManagerModal({
         await fetch("/api/column-add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ table, name: newColName, type: newColType }),
+            body: JSON.stringify({ table, columnName: newColName, columnType: newColType }),
         });
         setNewColName("");
         setNewColType("VARCHAR(255)");
@@ -43,7 +43,7 @@ export default function ColumnManagerModal({
         await fetch("/api/column-delete", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ table, name }),
+            body: JSON.stringify({ table, columnName: name }),
         });
         onRefresh();
     };
