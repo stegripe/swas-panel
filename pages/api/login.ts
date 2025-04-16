@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getConnection } from "../../lib/db";
 import bcrypt from "bcryptjs";
+import { getConnection } from "../../lib/db";
+import { signToken } from "../../lib/auth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "POST") {
@@ -24,10 +25,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        res.setHeader("Set-Cookie", `user=1; Path=/; HttpOnly`);
+        const token = signToken({
+            id: user.id,
+            email: user.email,
+            is_admin: user.is_admin,
+            is_dosen: user.is_dosen,
+        });
+
+        res.setHeader("Set-Cookie", `token=${token}; Path=/; HttpOnly`);
         res.status(200).json({ message: "Login success" });
     } catch (err: any) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ message: err.message });
     }
 }
