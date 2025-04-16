@@ -14,7 +14,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             LEFT JOIN classes c ON u.class = c.id
             LEFT JOIN attendances a ON u.id = a.user_id AND DATE(a.created_at) = CURDATE()
             GROUP BY u.id
+            ORDER BY last_attendance DESC
         `);
+
+        if (req.query.raw === "true") {
+            res.status(200).json(rows);
+            return;
+        }
 
         res.status(200).json({ data: rows });
     } catch (err: any) {

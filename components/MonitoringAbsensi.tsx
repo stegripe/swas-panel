@@ -23,6 +23,8 @@ export default function MonitoringAbsensi() {
         window.location.href = "/login";
     };
 
+    const goToRaw = () => window.open("/api/monitoring?raw=true", "_blank");
+
     const filteredData = data.filter((item) => {
         const lastAttendance = item.last_attendance ? new Date(item.last_attendance) : null;
         const now = new Date();
@@ -69,8 +71,15 @@ export default function MonitoringAbsensi() {
                     </span>
 
                     <button
+                        onClick={goToRaw}
+                        className="ml-4 bg-slate-700 hover:bg-primary px-4 py-2 rounded shadow text-white font-medium"
+                    >
+                        Lihat JSON
+                    </button>
+
+                    <button
                         onClick={goToLogin}
-                        className="ml-4 bg-primary hover:bg-primary.light px-4 py-2 rounded shadow text-white font-medium"
+                        className="ml-4 bg-primary hover:bg-slate-700 px-4 py-2 rounded shadow text-white font-medium"
                     >
                         Login Admin
                     </button>
