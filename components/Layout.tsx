@@ -64,6 +64,16 @@ export default function Layout({
                     ))}
                 </div>
 
+                <button
+                    onClick={async () => {
+                        await fetch("/api/logout");
+                        window.location.href = "/login";
+                    }}
+                    className="mt-4 px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white text-sm"
+                >
+                    Logout
+                </button>
+
                 <div className="mt-8 text-xs text-slate-500 text-center">
                     &copy; {new Date().getFullYear()} Stegripe Development
                 </div>
