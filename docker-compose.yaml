@@ -1,6 +1,6 @@
 services:
     panel:
-        build: .
+        image: ghcr.io/stegripe/swas-panel:latest-dev
         container_name: swas-panel
         ports:
             - "3000:3000"
