@@ -6,12 +6,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(405).json({ message: "Method not allowed" });
     }
 
-    const { name, columns } = req.body;
-    if (!name || !Array.isArray(columns)) {
+    const { name, columns }: { name: string; columns: ColumnData[] } = req.body;
+    if (typeof name !== "string" || !Array.isArray(columns)) {
         return res.status(400).json({ message: "Invalid request" });
     }
+    // Validate table name
+    const validTableName = /^[a-zA-Z0-9_]+$/.test(name);
+    if (!validTableName) {
+        return res.status(400).json({ message: "Invalid table name" });
+    }
 
-    const cols = columns.map((col: any) => `\`${col.name}\` ${col.type}`).join(", ");
+    const cols = columns
+        .map((col: ColumnData) => {
+            let colDef = `\`${col.name}\` ${col.type}`;
+            if (col.primary) {
+                colDef += " PRIMARY KEY";
+                if (col.autoIncrement && col.type.toLowerCase().includes("int")) {
+                    colDef += " AUTO_INCREMENT";
+                }
+            }
+            if (col.unique && !col.primary) colDef += " UNIQUE";
+            if (col.nullable && !col.primary) colDef += " NULL";
+            else if (!col.nullable) colDef += " NOT NULL";
+            return colDef;
+        })
+        .join(", ");
 
     const db = await getConnection();
     try {

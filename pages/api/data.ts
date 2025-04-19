@@ -21,7 +21,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             const [desc] = await db.query(`DESCRIBE \`${tableName}\``);
 
-            const columns = (desc as any[]).map((col) => `${col.Field}[]${col.Type}[]${col.Extra}`);
+            const columns = (desc as SQLResponse[]).map((col) => ({
+                name: col.Field,
+                type: col.Type,
+                primary: col.Key === "PRI",
+                autoIncrement: col.Extra.includes("auto_increment"),
+                unique: col.Key === "UNI",
+                nullable: col.Null === "YES",
+            })) as ColumnData[];
 
             return res.status(200).json({ rows, columns });
         }

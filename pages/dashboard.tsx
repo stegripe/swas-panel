@@ -14,7 +14,16 @@ export default function Dashboard() {
     const [loading, setLoading] = useState<boolean>(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [newTableName, setNewTableName] = useState("");
-    const [newTableColumns, setNewTableColumns] = useState([{ name: "", type: "VARCHAR(255)" }]);
+    const [newTableColumns, setNewTableColumns] = useState<ColumnData[]>([
+        {
+            name: "",
+            type: "varchar(255)",
+            primary: false,
+            autoIncrement: false,
+            unique: false,
+            nullable: false,
+        },
+    ]);
     const [showColumnModal, setShowColumnModal] = useState(false);
 
     useEffect(() => {
@@ -126,31 +135,112 @@ export default function Dashboard() {
                                 className="mb-2 p-2 w-full bg-slate-900 text-white border border-slate-600 rounded"
                             />
                             {newTableColumns.map((col, i) => (
-                                <div key={i} className="flex gap-2 mb-2">
-                                    <input
-                                        placeholder="Kolom"
-                                        value={col.name}
-                                        onChange={(e) =>
-                                            setNewTableColumns((prev) =>
-                                                prev.map((c, j) =>
-                                                    i === j ? { ...c, name: e.target.value } : c
+                                <div key={i} className="flex flex-col gap-2 mb-2">
+                                    <div className="flex gap-2 mb-2">
+                                        <input
+                                            placeholder="Kolom"
+                                            value={col.name}
+                                            onChange={(e) =>
+                                                setNewTableColumns((prev) =>
+                                                    prev.map((c, j) =>
+                                                        i === j ? { ...c, name: e.target.value } : c
+                                                    )
                                                 )
-                                            )
-                                        }
-                                        className="p-2 flex-1 bg-slate-900 text-white border border-slate-600 rounded"
-                                    />
-                                    <input
-                                        placeholder="Tipe (cth: VARCHAR(255), INT)"
-                                        value={col.type}
-                                        onChange={(e) =>
-                                            setNewTableColumns((prev) =>
-                                                prev.map((c, j) =>
-                                                    i === j ? { ...c, type: e.target.value } : c
+                                            }
+                                            className="p-2 flex-1 bg-slate-900 text-white border border-slate-600 rounded"
+                                        />
+                                        <input
+                                            placeholder="Tipe (cth: varchar(255), int, datetime)"
+                                            value={col.type}
+                                            onChange={(e) =>
+                                                setNewTableColumns((prev) =>
+                                                    prev.map((c, j) =>
+                                                        i === j ? { ...c, type: e.target.value } : c
+                                                    )
                                                 )
-                                            )
-                                        }
-                                        className="p-2 flex-1 bg-slate-900 text-white border border-slate-600 rounded"
-                                    />
+                                            }
+                                            className="p-2 flex-1 bg-slate-900 text-white border border-slate-600 rounded"
+                                        />
+                                    </div>
+                                    <div className="flex gap-4 mb-4">
+                                        <label className="text-white flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={col.autoIncrement}
+                                                onChange={(e) =>
+                                                    setNewTableColumns((prev) =>
+                                                        prev.map((c, j) =>
+                                                            i === j
+                                                                ? {
+                                                                      ...c,
+                                                                      autoIncrement:
+                                                                          e.target.checked,
+                                                                  }
+                                                                : c
+                                                        )
+                                                    )
+                                                }
+                                            />
+                                            Primary Key
+                                        </label>
+                                        <label className="text-white flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={col.primary}
+                                                onChange={(e) =>
+                                                    setNewTableColumns((prev) =>
+                                                        prev.map((c, j) =>
+                                                            i === j
+                                                                ? {
+                                                                      ...c,
+                                                                      primary: e.target.checked,
+                                                                  }
+                                                                : c
+                                                        )
+                                                    )
+                                                }
+                                            />
+                                            Auto Increment
+                                        </label>
+                                        <label className="text-white flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={col.unique}
+                                                onChange={(e) =>
+                                                    setNewTableColumns((prev) =>
+                                                        prev.map((c, j) =>
+                                                            i === j
+                                                                ? {
+                                                                      ...c,
+                                                                      unique: e.target.checked,
+                                                                  }
+                                                                : c
+                                                        )
+                                                    )
+                                                }
+                                            />
+                                            Unique
+                                        </label>
+                                        <label className="text-white flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={col.nullable}
+                                                onChange={(e) =>
+                                                    setNewTableColumns((prev) =>
+                                                        prev.map((c, j) =>
+                                                            i === j
+                                                                ? {
+                                                                      ...c,
+                                                                      nullable: e.target.checked,
+                                                                  }
+                                                                : c
+                                                        )
+                                                    )
+                                                }
+                                            />
+                                            Nullable
+                                        </label>
+                                    </div>
                                 </div>
                             ))}
                             <div className="flex gap-2 mt-2">
@@ -158,7 +248,14 @@ export default function Dashboard() {
                                     onClick={() =>
                                         setNewTableColumns((prev) => [
                                             ...prev,
-                                            { name: "", type: "VARCHAR(255)" },
+                                            {
+                                                name: "",
+                                                type: "varchar(255)",
+                                                unique: false,
+                                                nullable: false,
+                                                autoIncrement: false,
+                                                primary: false,
+                                            },
                                         ])
                                     }
                                     className="text-sm text-blue-400"
@@ -167,7 +264,20 @@ export default function Dashboard() {
                                 </button>
                                 <div className="flex-1"></div>
                                 <button
-                                    onClick={() => setShowCreateForm(false)}
+                                    onClick={() => {
+                                        setShowCreateForm(false);
+                                        setNewTableName("");
+                                        setNewTableColumns([
+                                            {
+                                                name: "",
+                                                type: "varchar(255)",
+                                                unique: false,
+                                                nullable: false,
+                                                autoIncrement: false,
+                                                primary: false,
+                                            },
+                                        ]);
+                                    }}
                                     className="text-sm px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white"
                                 >
                                     Batal
