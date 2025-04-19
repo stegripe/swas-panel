@@ -37,6 +37,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (err: any) {
         res.status(500).json({ message: err.message });
     } finally {
-        db.end();
+        await db.end();
     }
 }
