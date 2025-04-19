@@ -273,11 +273,11 @@ export default function Dashboard() {
                                 </h4>
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
                                     {columns
-                                        .filter((key) => key !== "id")
+                                        .filter((key) => key.split("[]")[2] !== "auto_increment")
                                         .map((key) => (
                                             <div key={key} className="flex flex-col text-white">
                                                 <label className="text-sm mb-1 font-semibold">
-                                                    {key}
+                                                    {key.split("[]")[0]}
                                                 </label>
                                                 {key === "class" ? (
                                                     <select
@@ -297,7 +297,7 @@ export default function Dashboard() {
                                                             </option>
                                                         ))}
                                                     </select>
-                                                ) : key === "created_at" || key === "updated_at" ? (
+                                                ) : key.split("[]")[1] === "datetime" ? (
                                                     <input
                                                         type="datetime-local"
                                                         value={newData[key] || ""}
@@ -309,7 +309,9 @@ export default function Dashboard() {
                                                         }
                                                         className="p-2 rounded bg-slate-800 text-white border border-slate-600"
                                                     />
-                                                ) : ["is_dosen", "is_admin"].includes(key) ? (
+                                                ) : ["isDosen", "isAdmin"].includes(
+                                                      key.split("[]")[0]
+                                                  ) ? (
                                                     <select
                                                         value={newData[key] ?? ""}
                                                         onChange={(e) =>
@@ -327,7 +329,9 @@ export default function Dashboard() {
                                                 ) : (
                                                     <input
                                                         placeholder={
-                                                            ["is_dosen", "is_admin"].includes(key)
+                                                            ["isDosen", "isAdmin"].includes(
+                                                                key.split("[]")[0]
+                                                            )
                                                                 ? "boolean"
                                                                 : [
                                                                         "created_at",
@@ -336,7 +340,7 @@ export default function Dashboard() {
                                                                   ? "datetime"
                                                                   : key === "class"
                                                                     ? "class (id)"
-                                                                    : "text"
+                                                                    : key.split("[]")[1]
                                                         }
                                                         value={newData[key] || ""}
                                                         onChange={(e) =>

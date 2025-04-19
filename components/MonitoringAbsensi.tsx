@@ -95,6 +95,7 @@ export default function MonitoringAbsensi() {
                             <th className="px-4 py-3">Kelas</th>
                             <th className="px-4 py-3">Status</th>
                             <th className="px-4 py-3">Waktu Masuk</th>
+                            <th className="px-4 py-3">Waktu Keluar</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -103,18 +104,45 @@ export default function MonitoringAbsensi() {
                                 key={i}
                                 className="odd:bg-slate-900 even:bg-slate-800 border-b border-slate-700"
                             >
-                                <td className="px-4 py-2">{item.name}</td>
+                                <td className="px-4 py-2">{item.nama}</td>
                                 <td className="px-4 py-2">{item.nim}</td>
                                 <td className="px-4 py-2">{item.nama_kelas || "-"}</td>
                                 <td className="px-4 py-2">
                                     {item.last_attendance ? (
-                                        <span className="text-green-400">Hadir</span>
+                                        item.last_type === 0 ? (
+                                            <span className="text-green-400">Hadir</span>
+                                        ) : item.last_type === 1 ? (
+                                            <span className="text-blue-400">Pulang</span>
+                                        ) : (
+                                            <span className="text-red-400">Unknown</span>
+                                        )
                                     ) : (
                                         <span className="text-red-400">Belum Hadir</span>
                                     )}
                                 </td>
                                 <td className="px-4 py-2">
-                                    {item.last_attendance
+                                    {item.last_attendance && item.last_type === 0
+                                        ? new Date(item.last_attendance).toLocaleTimeString(
+                                              "id-ID",
+                                              {
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                                  second: "2-digit",
+                                              }
+                                          )
+                                        : item.prev_attendance
+                                          ? new Date(item.prev_attendance).toLocaleTimeString(
+                                                "id-ID",
+                                                {
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                    second: "2-digit",
+                                                }
+                                            )
+                                          : "-"}
+                                </td>
+                                <td className="px-4 py-2">
+                                    {item.last_attendance && item.last_type === 1
                                         ? new Date(item.last_attendance).toLocaleTimeString(
                                               "id-ID",
                                               {

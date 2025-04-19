@@ -20,14 +20,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 `SELECT * FROM \`${tableName}\` LIMIT 100`
             );
 
-            // Ambil struktur kolom jika kosong
-            let columns: string[] = [];
-            if (rows.length === 0) {
-                const [desc] = await db.query(`DESCRIBE \`${tableName}\``);
-                columns = (desc as any[]).map((col) => col.Field);
-            } else {
-                columns = Object.keys(rows[0]);
-            }
+            const [desc] = await db.query(`DESCRIBE \`${tableName}\``);
+
+            const columns = (desc as any[]).map((col) => `${col.Field}[]${col.Type}[]${col.Extra}`);
 
             return res.status(200).json({ rows, columns });
         }
