@@ -6,7 +6,7 @@ export default function Dashboard() {
     const [tables, setTables] = useState<string[]>([]);
     const [selectedTable, setSelectedTable] = useState<string | null>(null);
     const [rows, setRows] = useState<any[]>([]);
-    const [columns, setColumns] = useState<string[]>([]);
+    const [columns, setColumns] = useState<ColumnData[]>([]);
     const [newData, setNewData] = useState<{ [key: string]: any }>({});
     const [classOptions, setClassOptions] = useState<any[]>([]);
     const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -105,6 +105,85 @@ export default function Dashboard() {
             const updated = await fetch("/api/data").then((r) => r.json());
             setTables(updated.tables?.map((t: any) => Object.values(t)[0]) || []);
             if (selectedTable === table) setSelectedTable(null);
+        }
+    };
+
+    const handleDeleteRow = async (row: any) => {
+        if (!confirm("Are you sure you want to delete this row?")) return;
+
+        // Check if table and row data are valid
+        if (!selectedTable || !row) {
+            alert("Table or row data is missing");
+            return;
+        }
+
+        // Prepare the request payload
+        const payload: any = {
+            table: selectedTable,
+        };
+
+        if (row.id) {
+            // If the row has a primary key (e.g., `id`), delete by primary key
+            payload.primaryKey = "id";
+            payload.id = row.id;
+        } else {
+            // Otherwise, delete by full criteria (all column values)
+            payload.criteria = row;
+        }
+
+        try {
+            const res = await fetch("/api/delete", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (res.ok) {
+                loadTable(selectedTable); // Reload table after successful deletion
+            } else {
+                const error = await res.json();
+                alert(`Failed to delete the row: ${error.message}`);
+            }
+        } catch (error) {
+            console.error("Error deleting row:", error);
+            alert("An error occurred while deleting the row.");
+        }
+    };
+
+    const handleUpdateRow = async (row: any) => {
+        if (!selectedTable || !editData) {
+            alert("Table or row data is missing");
+            return;
+        }
+
+        const payload: any = {
+            table: selectedTable,
+            data: editData,
+        };
+
+        if (row.id) {
+            // If the row has a primary key (e.g., `id`), use it for the update
+            payload.primaryKey = "id";
+            payload.id = row.id;
+        } else {
+            // Otherwise, use all column values as criteria for the update
+            payload.criteria = row;
+        }
+
+        const res = await fetch("/api/update", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+            setEditIndex(null);
+            loadTable(selectedTable); // Reload the table data
+        } else {
+            const error = await res.json();
+            alert(`Failed to update the row: ${error.message}`);
         }
     };
 
@@ -385,24 +464,22 @@ export default function Dashboard() {
                                         </h4>
                                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
                                             {columns
-                                                .filter(
-                                                    (key) => key.split("[]")[2] !== "auto_increment"
-                                                )
+                                                .filter((key) => !key.autoIncrement)
                                                 .map((key) => (
                                                     <div
-                                                        key={key}
+                                                        key={key.name}
                                                         className="flex flex-col text-white"
                                                     >
                                                         <label className="text-sm mb-1 font-semibold">
-                                                            {key.split("[]")[0]}
+                                                            {key.name}
                                                         </label>
-                                                        {key.split("[]")[0] === "class" ? (
+                                                        {key.name === "class" ? (
                                                             <select
-                                                                value={newData[key] ?? ""}
+                                                                value={newData[key.name] ?? ""}
                                                                 onChange={(e) =>
                                                                     setNewData({
                                                                         ...newData,
-                                                                        [key]: Number(
+                                                                        [key.name]: Number(
                                                                             e.target.value
                                                                         ),
                                                                     })
@@ -421,27 +498,27 @@ export default function Dashboard() {
                                                                     </option>
                                                                 ))}
                                                             </select>
-                                                        ) : key.split("[]")[1] === "datetime" ? (
+                                                        ) : key.type === "datetime" ? (
                                                             <input
                                                                 type="datetime-local"
-                                                                value={newData[key] || ""}
+                                                                value={newData[key.name] || ""}
                                                                 onChange={(e) =>
                                                                     setNewData({
                                                                         ...newData,
-                                                                        [key]: e.target.value,
+                                                                        [key.name]: e.target.value,
                                                                     })
                                                                 }
                                                                 className="p-2 rounded bg-slate-800 text-white border border-slate-600"
                                                             />
                                                         ) : ["isDosen", "isAdmin"].includes(
-                                                              key.split("[]")[0]
+                                                              key.name
                                                           ) ? (
                                                             <select
-                                                                value={newData[key] ?? ""}
+                                                                value={newData[key.name] ?? ""}
                                                                 onChange={(e) =>
                                                                     setNewData({
                                                                         ...newData,
-                                                                        [key]: Number(
+                                                                        [key.name]: Number(
                                                                             e.target.value
                                                                         ),
                                                                     })
@@ -456,24 +533,23 @@ export default function Dashboard() {
                                                             <input
                                                                 placeholder={
                                                                     ["isDosen", "isAdmin"].includes(
-                                                                        key.split("[]")[0]
+                                                                        key.name
                                                                     )
                                                                         ? "boolean"
                                                                         : [
                                                                                 "created_at",
                                                                                 "updated_at",
-                                                                            ].includes(key)
+                                                                            ].includes(key.name)
                                                                           ? "datetime"
-                                                                          : key.split("[]")[0] ===
-                                                                              "class"
+                                                                          : key.name === "class"
                                                                             ? "class (id)"
-                                                                            : key.split("[]")[1]
+                                                                            : key.type
                                                                 }
-                                                                value={newData[key] || ""}
+                                                                value={newData[key.name] || ""}
                                                                 onChange={(e) =>
                                                                     setNewData({
                                                                         ...newData,
-                                                                        [key]: e.target.value,
+                                                                        [key.name]: e.target.value,
                                                                     })
                                                                 }
                                                                 className="p-2 rounded bg-slate-800 text-white border border-slate-600"
@@ -520,13 +596,13 @@ export default function Dashboard() {
                                     <thead className="bg-slate-700 text-xs uppercase text-gray-300">
                                         <tr>
                                             {columns
-                                                .filter((key) => key !== "id")
+                                                .filter((key) => !key.autoIncrement)
                                                 .map((key) => (
                                                     <th
-                                                        key={key}
+                                                        key={key.name}
                                                         className="border border-slate-700 px-4 py-2 text-left text-white"
                                                     >
-                                                        {key.split("[]")[0]}
+                                                        {key.name}
                                                     </th>
                                                 ))}
                                             <th className="border border-slate-700 px-4 py-2 text-white">
@@ -538,25 +614,26 @@ export default function Dashboard() {
                                         {rows.map((row, i) => (
                                             <tr key={i} className="hover:bg-slate-800">
                                                 {columns
-                                                    .filter((key) => key !== "id")
+                                                    .filter((key) => !key.autoIncrement)
                                                     .map((key) => (
                                                         <td
-                                                            key={key}
+                                                            key={key.name}
                                                             className="border px-4 py-2 text-white"
                                                         >
                                                             {editIndex === i ? (
                                                                 <input
-                                                                    value={editData[key] || ""}
+                                                                    value={editData[key.name] || ""}
                                                                     onChange={(e) =>
                                                                         setEditData({
                                                                             ...editData,
-                                                                            [key]: e.target.value,
+                                                                            [key.name]:
+                                                                                e.target.value,
                                                                         })
                                                                     }
                                                                     className="w-full p-1 rounded bg-slate-700 text-white"
                                                                 />
                                                             ) : (
-                                                                row[key.split("[]")[0]]
+                                                                row[key.name]
                                                             )}
                                                         </td>
                                                     ))}
@@ -565,28 +642,7 @@ export default function Dashboard() {
                                                         <>
                                                             <button
                                                                 className="text-green-400 hover:text-green-600"
-                                                                onClick={async () => {
-                                                                    const res = await fetch(
-                                                                        "/api/update",
-                                                                        {
-                                                                            method: "PUT",
-                                                                            headers: {
-                                                                                "Content-Type":
-                                                                                    "application/json",
-                                                                            },
-                                                                            body: JSON.stringify({
-                                                                                table: selectedTable,
-                                                                                primaryKey: "id",
-                                                                                id: row.id,
-                                                                                data: editData,
-                                                                            }),
-                                                                        }
-                                                                    );
-                                                                    if (res.ok) {
-                                                                        setEditIndex(null);
-                                                                        loadTable(selectedTable);
-                                                                    }
-                                                                }}
+                                                                onClick={() => handleUpdateRow(row)}
                                                             >
                                                                 💾
                                                             </button>
@@ -610,30 +666,7 @@ export default function Dashboard() {
                                                             </button>
                                                             <button
                                                                 className="text-red-400 hover:text-red-600"
-                                                                onClick={async () => {
-                                                                    const id = row.id;
-                                                                    if (
-                                                                        !confirm("Delete this row?")
-                                                                    )
-                                                                        return;
-                                                                    const res = await fetch(
-                                                                        "/api/delete",
-                                                                        {
-                                                                            method: "DELETE",
-                                                                            headers: {
-                                                                                "Content-Type":
-                                                                                    "application/json",
-                                                                            },
-                                                                            body: JSON.stringify({
-                                                                                table: selectedTable,
-                                                                                primaryKey: "id",
-                                                                                id,
-                                                                            }),
-                                                                        }
-                                                                    );
-                                                                    if (res.ok)
-                                                                        loadTable(selectedTable);
-                                                                }}
+                                                                onClick={() => handleDeleteRow(row)}
                                                             >
                                                                 🗑️
                                                             </button>
@@ -658,10 +691,7 @@ export default function Dashboard() {
                 {showColumnModal && (
                     <ColumnManagerModal
                         table={selectedTable}
-                        columns={columns.map((col) => ({
-                            name: col.split("[]")[0],
-                            type: col.split("[]")[1],
-                        }))}
+                        columns={columns}
                         onClose={() => setShowColumnModal(false)}
                         onRefresh={() => loadTable(selectedTable!)}
                     />

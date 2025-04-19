@@ -6,13 +6,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(405).json({ message: "Method not allowed" });
     }
 
-    const { table, data, primaryKey, id } = req.body;
-    if (!table || !data || !primaryKey || typeof id === "undefined") {
-        return res.status(400).json({ message: "Missing fields" });
+    const { table, data, primaryKey, id, criteria } = req.body;
+
+    if (!table || !data) {
+        return res.status(400).json({ message: "Missing table or data" });
+    }
+
+    if (!primaryKey && !criteria) {
+        return res.status(400).json({ message: "Missing primary key or criteria for update" });
     }
 
     const db = await getConnection();
     try {
+        // Format data for the SET clause
         const formattedData: { [key: string]: any } = {};
         for (const [key, value] of Object.entries(data)) {
             if (typeof value === "string" && value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:.+/)) {
@@ -22,15 +28,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
         }
 
-        const columns = Object.keys(formattedData)
+        const setClause = Object.keys(formattedData)
             .map((key) => `\`${key}\` = ?`)
             .join(", ");
-        const values = Object.values(formattedData);
+        const setValues = Object.values(formattedData);
 
-        await db.execute(`UPDATE \`${table}\` SET ${columns} WHERE \`${primaryKey}\` = ?`, [
-            ...values,
-            id,
-        ]);
+        // Prepare the WHERE clause
+        let query = `UPDATE \`${table}\` SET ${setClause}`;
+        let params: any[] = [...setValues];
+
+        if (primaryKey && typeof id !== "undefined") {
+            // Use primary key for WHERE clause
+            query += ` WHERE \`${primaryKey}\` = ?`;
+            params.push(id);
+        } else if (criteria) {
+            // Build WHERE clause for criteria
+            const whereClauses = Object.keys(criteria).map((key) => {
+                if (criteria[key] === null) {
+                    return `\`${key}\` IS NULL`; // Handle NULL values
+                } else {
+                    return `\`${key}\` = ?`;
+                }
+            });
+
+            query += ` WHERE ${whereClauses.join(" AND ")}`;
+            params.push(...Object.values(criteria).filter((value) => value !== null)); // Exclude NULL values from params
+        } else {
+            throw new Error("No primary key or criteria provided for update");
+        }
+
+        // Execute the query
+        const [result]: any = await db.execute(query, params);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "No matching row found to update" });
+        }
 
         res.status(200).json({ message: "Update success" });
     } catch (err: any) {
