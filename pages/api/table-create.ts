@@ -13,12 +13,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const cols = columns.map((col: any) => `\`${col.name}\` ${col.type}`).join(", ");
 
+    const db = await getConnection();
     try {
-        const db = await getConnection();
         await db.query(`CREATE TABLE \`${name}\` (${cols})`);
         return res.status(200).json({ message: "Table created" });
     } catch (err: any) {
         console.error(err);
         res.status(500).json({ message: err.message });
+    } finally {
+        db.end();
     }
 }

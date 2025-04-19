@@ -10,8 +10,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { email, password } = req.body;
 
+    const db = await getConnection();
     try {
-        const db = await getConnection();
         const [rows]: any = await db.query("SELECT * FROM users WHERE email = ? LIMIT 1", [email]);
 
         if (rows.length === 0) {
@@ -36,5 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(200).json({ message: "Login success" });
     } catch (err: any) {
         res.status(500).json({ message: err.message });
+    } finally {
+        db.end();
     }
 }

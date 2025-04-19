@@ -11,9 +11,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ message: "Missing fields" });
     }
 
+    const db = await getConnection();
     try {
-        const db = await getConnection();
-
         const formattedData: { [key: string]: any } = {};
         for (const [key, value] of Object.entries(data)) {
             if (typeof value === "string" && value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:.+/)) {
@@ -37,5 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (err: any) {
         console.error(err);
         res.status(500).json({ message: err.message });
+    } finally {
+        db.end();
     }
 }

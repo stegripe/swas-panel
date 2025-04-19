@@ -2,10 +2,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getConnection } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    const db = await getConnection();
     try {
         if (req.method === "GET") {
-            const db = await getConnection();
-
             // Ambil data absensi terakhir hari ini per user
             const [rows] = await db.query(`
                 SELECT 
@@ -50,5 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (err: any) {
         console.error(err);
         res.status(500).json({ message: err.message });
+    } finally {
+        db.end();
     }
 }

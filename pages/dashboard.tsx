@@ -268,109 +268,128 @@ export default function Dashboard() {
 
                         {columns.length > 0 && (
                             <>
-                                <h4 className="text-md text-white font-semibold mb-2">
-                                    Add New Row:
-                                </h4>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
-                                    {columns
-                                        .filter((key) => key.split("[]")[2] !== "auto_increment")
-                                        .map((key) => (
-                                            <div key={key} className="flex flex-col text-white">
-                                                <label className="text-sm mb-1 font-semibold">
-                                                    {key.split("[]")[0]}
-                                                </label>
-                                                {key === "class" ? (
-                                                    <select
-                                                        value={newData[key] ?? ""}
-                                                        onChange={(e) =>
-                                                            setNewData({
-                                                                ...newData,
-                                                                [key]: Number(e.target.value),
-                                                            })
-                                                        }
-                                                        className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                {selectedTable !== "users" && (
+                                    <>
+                                        <h4 className="text-md text-white font-semibold mb-2">
+                                            Add New Row:
+                                        </h4>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
+                                            {columns
+                                                .filter(
+                                                    (key) => key.split("[]")[2] !== "auto_increment"
+                                                )
+                                                .map((key) => (
+                                                    <div
+                                                        key={key}
+                                                        className="flex flex-col text-white"
                                                     >
-                                                        <option value="">(pilih kelas)</option>
-                                                        {classOptions.map((cls) => (
-                                                            <option key={cls.id} value={cls.id}>
-                                                                {cls.nama_kelas}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                ) : key.split("[]")[1] === "datetime" ? (
-                                                    <input
-                                                        type="datetime-local"
-                                                        value={newData[key] || ""}
-                                                        onChange={(e) =>
-                                                            setNewData({
-                                                                ...newData,
-                                                                [key]: e.target.value,
-                                                            })
-                                                        }
-                                                        className="p-2 rounded bg-slate-800 text-white border border-slate-600"
-                                                    />
-                                                ) : ["isDosen", "isAdmin"].includes(
-                                                      key.split("[]")[0]
-                                                  ) ? (
-                                                    <select
-                                                        value={newData[key] ?? ""}
-                                                        onChange={(e) =>
-                                                            setNewData({
-                                                                ...newData,
-                                                                [key]: Number(e.target.value),
-                                                            })
-                                                        }
-                                                        className="p-2 rounded bg-slate-800 text-white border border-slate-600"
-                                                    >
-                                                        <option value="">(pilih)</option>
-                                                        <option value="1">true</option>
-                                                        <option value="0">false</option>
-                                                    </select>
-                                                ) : (
-                                                    <input
-                                                        placeholder={
-                                                            ["isDosen", "isAdmin"].includes(
-                                                                key.split("[]")[0]
-                                                            )
-                                                                ? "boolean"
-                                                                : [
-                                                                        "created_at",
-                                                                        "updated_at",
-                                                                    ].includes(key)
-                                                                  ? "datetime"
-                                                                  : key === "class"
-                                                                    ? "class (id)"
-                                                                    : key.split("[]")[1]
-                                                        }
-                                                        value={newData[key] || ""}
-                                                        onChange={(e) =>
-                                                            setNewData({
-                                                                ...newData,
-                                                                [key]: e.target.value,
-                                                            })
-                                                        }
-                                                        className="p-2 rounded bg-slate-800 text-white border border-slate-600"
-                                                    />
-                                                )}
-                                            </div>
-                                        ))}
-                                </div>
-                                <button
-                                    onClick={async () => {
-                                        const res = await fetch("/api/create", {
-                                            method: "POST",
-                                            headers: { "Content-Type": "application/json" },
-                                            body: JSON.stringify({
-                                                table: selectedTable,
-                                                data: newData,
-                                            }),
-                                        });
-                                        if (res.ok) loadTable(selectedTable);
-                                    }}
-                                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded mb-6"
-                                >
-                                    Add Row
-                                </button>
+                                                        <label className="text-sm mb-1 font-semibold">
+                                                            {key.split("[]")[0]}
+                                                        </label>
+                                                        {key.split("[]")[0] === "class" ? (
+                                                            <select
+                                                                value={newData[key] ?? ""}
+                                                                onChange={(e) =>
+                                                                    setNewData({
+                                                                        ...newData,
+                                                                        [key]: Number(
+                                                                            e.target.value
+                                                                        ),
+                                                                    })
+                                                                }
+                                                                className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                            >
+                                                                <option value="">
+                                                                    (pilih kelas)
+                                                                </option>
+                                                                {classOptions.map((cls) => (
+                                                                    <option
+                                                                        key={cls.id}
+                                                                        value={cls.id}
+                                                                    >
+                                                                        {cls.nama_kelas}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        ) : key.split("[]")[1] === "datetime" ? (
+                                                            <input
+                                                                type="datetime-local"
+                                                                value={newData[key] || ""}
+                                                                onChange={(e) =>
+                                                                    setNewData({
+                                                                        ...newData,
+                                                                        [key]: e.target.value,
+                                                                    })
+                                                                }
+                                                                className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                            />
+                                                        ) : ["isDosen", "isAdmin"].includes(
+                                                              key.split("[]")[0]
+                                                          ) ? (
+                                                            <select
+                                                                value={newData[key] ?? ""}
+                                                                onChange={(e) =>
+                                                                    setNewData({
+                                                                        ...newData,
+                                                                        [key]: Number(
+                                                                            e.target.value
+                                                                        ),
+                                                                    })
+                                                                }
+                                                                className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                            >
+                                                                <option value="">(pilih)</option>
+                                                                <option value="1">true</option>
+                                                                <option value="0">false</option>
+                                                            </select>
+                                                        ) : (
+                                                            <input
+                                                                placeholder={
+                                                                    ["isDosen", "isAdmin"].includes(
+                                                                        key.split("[]")[0]
+                                                                    )
+                                                                        ? "boolean"
+                                                                        : [
+                                                                                "created_at",
+                                                                                "updated_at",
+                                                                            ].includes(key)
+                                                                          ? "datetime"
+                                                                          : key.split("[]")[0] ===
+                                                                              "class"
+                                                                            ? "class (id)"
+                                                                            : key.split("[]")[1]
+                                                                }
+                                                                value={newData[key] || ""}
+                                                                onChange={(e) =>
+                                                                    setNewData({
+                                                                        ...newData,
+                                                                        [key]: e.target.value,
+                                                                    })
+                                                                }
+                                                                className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                ))}
+                                        </div>
+                                        <button
+                                            onClick={async () => {
+                                                const res = await fetch("/api/create", {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify({
+                                                        table: selectedTable,
+                                                        data: newData,
+                                                    }),
+                                                });
+                                                if (res.ok) loadTable(selectedTable);
+                                            }}
+                                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded mb-6"
+                                        >
+                                            Add Row
+                                        </button>
+                                    </>
+                                )}
                                 <div className="flex justify-between items-center mb-4">
                                     <div>
                                         <button
@@ -397,7 +416,7 @@ export default function Dashboard() {
                                                         key={key}
                                                         className="border border-slate-700 px-4 py-2 text-left text-white"
                                                     >
-                                                        {key}
+                                                        {key.split("[]")[0]}
                                                     </th>
                                                 ))}
                                             <th className="border border-slate-700 px-4 py-2 text-white">
@@ -427,7 +446,7 @@ export default function Dashboard() {
                                                                     className="w-full p-1 rounded bg-slate-700 text-white"
                                                                 />
                                                             ) : (
-                                                                row[key]
+                                                                row[key.split("[]")[0]]
                                                             )}
                                                         </td>
                                                     ))}
@@ -529,7 +548,10 @@ export default function Dashboard() {
                 {showColumnModal && (
                     <ColumnManagerModal
                         table={selectedTable}
-                        columns={columns.map((col) => ({ name: col, type: "TEXT" }))}
+                        columns={columns.map((col) => ({
+                            name: col.split("[]")[0],
+                            type: col.split("[]")[1],
+                        }))}
                         onClose={() => setShowColumnModal(false)}
                         onRefresh={() => loadTable(selectedTable!)}
                     />

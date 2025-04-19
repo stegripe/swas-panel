@@ -8,12 +8,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { table, primaryKey, id } = req.body;
 
+    const db = await getConnection();
     try {
-        const db = await getConnection();
         await db.execute(`DELETE FROM \`${table}\` WHERE \`${primaryKey}\` = ?`, [id]);
         res.status(200).json({ message: "Delete success" });
     } catch (err: any) {
         console.error(err);
         res.status(500).json({ message: err.message });
+    } finally {
+        db.end();
     }
 }

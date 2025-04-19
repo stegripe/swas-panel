@@ -3,9 +3,8 @@ import { RowDataPacket } from "mysql2";
 import { getConnection } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    const db = await getConnection();
     try {
-        const db = await getConnection();
-
         if (req.method === "GET") {
             const tableName = req.query.table as string;
 
@@ -31,5 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (err: any) {
         console.error(err);
         res.status(500).json({ message: err.message });
+    } finally {
+        db.end();
     }
 }

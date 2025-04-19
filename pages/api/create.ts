@@ -13,9 +13,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ message: "Missing table or data" });
     }
 
+    const db = await getConnection();
     try {
-        const db = await getConnection();
-
         // Auto hash password if field exists
         if (data.password) {
             const salt = await bcrypt.genSalt(10);
@@ -36,5 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (err: any) {
         console.error(err);
         res.status(500).json({ message: err.message });
+    } finally {
+        db.end();
     }
 }
