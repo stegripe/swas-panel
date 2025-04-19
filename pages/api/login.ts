@@ -28,8 +28,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const token = signToken({
             id: user.id,
             email: user.email,
-            is_admin: user.is_admin,
-            is_dosen: user.is_dosen,
+            isAdmin: user.isAdmin,
+            isDosen: user.isDosen,
         });
 
         res.setHeader("Set-Cookie", `token=${token}; Path=/; HttpOnly`);
