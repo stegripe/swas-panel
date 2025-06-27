@@ -85,7 +85,7 @@ export default function Dashboard() {
 
         if (res.ok) {
             setNewTableName("");
-            setNewTableColumns([{ name: "", type: "VARCHAR(255)" }]);
+            setNewTableColumns([{ name: "", type: "varchar(255)" }]);
             setShowCreateForm(false);
             const updated = await fetch("/api/data").then((r) => r.json());
             setTables(updated.tables?.map((t: any) => Object.values(t)[0]) || []);

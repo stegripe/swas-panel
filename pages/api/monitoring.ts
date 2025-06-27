@@ -11,28 +11,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     m.id, 
                     m.nama, 
                     m.nim, 
-                    c.nama_kelas,
+                    c.namaKelas,
                     -- Get the most recent attendance
-                    MAX(a.created_at) AS last_attendance,
+                    MAX(a.createdAt) AS last_attendance,
                     -- Get the type of the most recent attendance
                     MAX(a.type) AS last_type,
                     -- Subquery to get the second most recent attendance
                     (
-                        SELECT MAX(a2.created_at)
+                        SELECT MAX(a2.createdAt)
                         FROM attendances a2
                         WHERE a2.nim = m.nim
-                        AND a2.created_at < (
-                            SELECT MAX(a3.created_at)
+                        AND a2.createdAt < (
+                            SELECT MAX(a3.createdAt)
                             FROM attendances a3
                             WHERE a3.nim = m.nim
-                            AND DATE(a3.created_at) = CURDATE()
+                            AND DATE(a3.createdAt) = CURDATE()
                         )
                     ) AS prev_attendance
                 FROM mahasiswa m
                 LEFT JOIN classes c ON m.kelas = c.id   
                 LEFT JOIN attendances a ON a.nim = m.nim
-                AND a.created_at >= CURDATE()
-                AND a.created_at < CURDATE() + INTERVAL 1 DAY
+                AND a.createdAt >= CURDATE()
+                AND a.createdAt < CURDATE() + INTERVAL 1 DAY
                 GROUP BY m.id
                 ORDER BY last_attendance DESC
         `);
