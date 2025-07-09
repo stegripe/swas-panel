@@ -20,7 +20,7 @@
         "react-dom": "19.1.0"
     },
     "devDependencies": {
-        "@types/node": "22.16.0",
+        "@types/node": "22.16.2",
         "@types/react": "19.1.8",
         "autoprefixer": "^10.4.21",
         "eslint": "^9.30.1",
