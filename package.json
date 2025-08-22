@@ -11,17 +11,17 @@
     "dependencies": {
         "bcryptjs": "^3.0.2",
         "exceljs": "^4.4.0",
-        "jose": "^6.0.12",
+        "jose": "^6.0.13",
         "jsonwebtoken": "^9.0.2",
-        "lucide-react": "^0.525.0",
-        "mysql2": "^3.14.2",
-        "next": "^15.4.4",
-        "react": "19.1.0",
-        "react-dom": "19.1.0"
+        "lucide-react": "^0.540.0",
+        "mysql2": "^3.14.3",
+        "next": "^15.5.0",
+        "react": "19.1.1",
+        "react-dom": "19.1.1"
     },
     "devDependencies": {
-        "@types/node": "22.16.5",
-        "@types/react": "19.1.8",
+        "@types/node": "22.17.2",
+        "@types/react": "19.1.10",
         "autoprefixer": "^10.4.21",
         "eslint": "^9.33.0",
         "eslint-config-next": "15.5.0",
