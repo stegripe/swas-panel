@@ -10,7 +10,7 @@ services:
             - mariadb
 
     mariadb:
-        image: mariadb:11.8
+        image: mariadb:12.0
         container_name: swas-mariadb
         restart: always
         env_file:
