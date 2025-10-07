@@ -613,7 +613,7 @@ export default function Dashboard() {
                                     </button>
                                 </div>
                             </div>
-                            <table className="min-w-full bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                            <table className="min-w-full bg-slate-900 overflow-hidden border border-slate-700">
                                 <thead className="bg-slate-700 text-xs uppercase text-gray-300">
                                     <tr>
                                         {columns
@@ -621,12 +621,12 @@ export default function Dashboard() {
                                             .map((key) => (
                                                 <th
                                                     key={key.name}
-                                                    className="border border-slate-700 px-4 py-2 text-left text-white"
+                                                    className="border border-slate-800 px-4 py-2 text-left text-white"
                                                 >
                                                     {key.name}
                                                 </th>
                                             ))}
-                                        <th className="border border-slate-700 px-4 py-2 text-white">
+                                        <th className="border border-slate-800 px-4 py-2 text-white">
                                             Actions
                                         </th>
                                     </tr>
@@ -639,7 +639,7 @@ export default function Dashboard() {
                                                 .map((key) => (
                                                     <td
                                                         key={key.name}
-                                                        className="border px-4 py-2 text-white"
+                                                        className="border border-slate-700 px-4 py-2 text-white"
                                                     >
                                                         {editIndex === i ? (
                                                             <input
@@ -657,7 +657,7 @@ export default function Dashboard() {
                                                         )}
                                                     </td>
                                                 ))}
-                                            <td className="border px-4 py-2 text-white space-x-2">
+                                            <td className="border border-slate-700 px-4 py-2 text-white space-x-2">
                                                 {editIndex === i ? (
                                                     <>
                                                         <button

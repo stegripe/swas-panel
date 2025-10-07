@@ -42,9 +42,3 @@ button {
 table {
     @apply bg-surface;
 }
-
-input,
-select,
-textarea {
-    @apply text-black;
-}
