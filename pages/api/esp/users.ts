@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const params: any[] = [];
 
                 if (userId) {
-                    whereClause += (whereClause ? " AND" : " WHERE") + " id = ?";
+                    whereClause += (whereClause ? " AND" : " WHERE") + " nim = ?";
                     params.push(userId);
                 }
                 if (fingerprint) {
@@ -30,43 +30,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     params.push(fingerprint);
                 }
 
-                const [rowsU1]: any = await db.query("SELECT * FROM users" + whereClause, params);
-                let userData: GetUserResponse | null = null;
-                if (!rowsU1 || rowsU1.length === 0) {
+                // Query from temp_users table (ESP32 structure)
+                const [rows]: any = await db.query("SELECT * FROM temp_users" + whereClause, params);
+                if (!rows || rows.length === 0) {
                     res.status(404).json({ message: "User tidak ditemukan" });
                     return;
                 }
-                const user1 = rowsU1[0] as UserT;
 
-                const [rowsM1]: any = await db.query("SELECT * FROM mahasiswa WHERE userId = ?", [
-                    user1.id,
-                ]);
-                if (
-                    user1.isAdmin === 0 &&
-                    user1.isDosen === 0 &&
-                    (!rowsM1 || rowsM1.length === 0)
-                ) {
-                    res.status(404).json({ message: "Mahasiswa tidak ditemukan" });
-                    return;
-                }
-
-                let mahasiswaData: MahasiswaT | null = null;
-                if (user1.isAdmin === 0 && user1.isDosen === 0 && rowsM1 && rowsM1.length > 0) {
-                    mahasiswaData = rowsM1[0] as MahasiswaT;
-                }
-
-                userData = {
-                    id: user1.id,
-                    email: user1.email,
-                    isAdmin: user1.isAdmin,
-                    isDosen: user1.isDosen,
-                    fingerprint: user1.fingerprint,
-                    mahasiswaId: mahasiswaData ? mahasiswaData.id : null,
-                    nim: mahasiswaData ? mahasiswaData.nim : null,
-                    nama: mahasiswaData ? mahasiswaData.nama : null,
-                    kelas: mahasiswaData ? mahasiswaData.kelas : null,
-                    createdAt: mahasiswaData ? mahasiswaData.createdAt : null,
-                    updatedAt: mahasiswaData ? mahasiswaData.updatedAt : null,
+                const user = rows[0] as UserT;
+                const userData: GetUserResponse = {
+                    id: 0, // temp_users doesn't have id column
+                    email: user.email || "",
+                    isAdmin: user.isAdmin || 0,
+                    isDosen: user.isDosen || 0,
+                    fingerprint: user.fingerprint,
+                    nim: user.nim,
+                    nama: user.nama,
+                    kelas: user.kelas,
+                    createdAt: user.createdAt || new Date().toISOString(),
+                    updatedAt: user.updatedAt || new Date().toISOString(),
                 };
 
                 res.status(200).json(userData);
@@ -87,39 +69,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     return;
                 }
 
+                // Insert into temp_users table (ESP32 structure)
                 await db.query(
-                    "INSERT INTO users (email, password, isAdmin, isDosen, fingerprint) VALUES (?, ?, ?, ?, ?)",
+                    "INSERT INTO temp_users (nim, nama, kelas, fingerprints, email, password, isAdmin, isDosen, fingerprint, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     [
+                        createData.nim || null,
+                        createData.nama || null,
+                        createData.kelas || null,
+                        createData.fingerprint || null,
                         createData.email,
                         createData.password,
                         createData.isAdmin,
                         createData.isDosen,
                         createData.fingerprint,
+                        createData.createdAt || new Date().toISOString(),
+                        createData.updatedAt || new Date().toISOString(),
                     ]
                 );
-
-                if (isSiswaA) {
-                    await db.query(
-                        "INSERT INTO mahasiswa (nim, nama, kelas, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)",
-                        [
-                            createData.nim,
-                            createData.nama,
-                            createData.kelas,
-                            createData.createdAt,
-                            createData.updatedAt,
-                        ]
-                    );
-                }
 
                 res.status(201).json({ message: "User berhasil dibuat" });
                 break;
             case "PATCH":
                 const updateData = req.body as UpdateUserRequest;
-                const [rowsU2]: any = await db.query("SELECT * FROM users WHERE id = ?", [
-                    req.query.userId,
-                ]);
-                const [rowsM2]: any = await db.query("SELECT * FROM mahasiswa WHERE userId = ?", [
-                    req.query.userId,
+                const identifier = req.query.userId || req.query.fingerprint;
+                
+                if (!identifier) {
+                    res.status(400).json({ message: "userId atau fingerprint diperlukan" });
+                    return;
+                }
+
+                let whereClauseUpdate = "";
+                if (req.query.userId) {
+                    whereClauseUpdate = "WHERE nim = ?";
+                } else if (req.query.fingerprint) {
+                    whereClauseUpdate = "WHERE fingerprint = ?";
+                }
+
+                const [rowsU2]: any = await db.query(`SELECT * FROM temp_users ${whereClauseUpdate}`, [
+                    identifier,
                 ]);
 
                 if (!rowsU2 || rowsU2.length === 0) {
@@ -129,10 +116,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 const user2 = rowsU2[0] as UserT;
 
-                const isSiswaB = user2.isAdmin === 0 && user2.isDosen === 0;
-
-                // User Update
-                const validKeys = ["email", "password", "isAdmin", "isDosen", "fingerprint"];
+                // Update temp_users table (ESP32 structure)
+                const validKeys = ["email", "password", "isAdmin", "isDosen", "fingerprint", "nim", "nama", "kelas", "fingerprints", "createdAt", "updatedAt"];
                 const updates = Object.keys(updateData)
                     .filter((key) => validKeys.includes(key))
                     .map((key) => `${key} = ?`)
@@ -145,55 +130,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 const updateKeys = Object.keys(updateData).filter((key) => validKeys.includes(key));
                 const updateValues = updateKeys.map((key) => (updateData as any)[key]);
-                await db.query(`UPDATE users SET ${updates} WHERE id = ?`, [
+                await db.query(`UPDATE temp_users SET ${updates} ${whereClauseUpdate}`, [
                     ...updateValues,
-                    req.query.userId,
+                    identifier,
                 ]);
-
-                // Mahasiswa Update
-                const validSiswaKeys = ["nim", "nama", "kelas", "createdAt", "updatedAt"];
-                const siswaUpdates = Object.keys(updateData)
-                    .filter((key) => validSiswaKeys.includes(key))
-                    .map((key) => `${key} = ?`)
-                    .join(", ");
-
-                if (isSiswaB && (updateData.isAdmin === 1 || updateData.isDosen === 1)) {
-                    await db.query(`DELETE FROM mahasiswa WHERE userId = ?`, [user2.id]);
-                }
-
-                const siswaUpdateKeys = Object.keys(updateData).filter((key) =>
-                    validSiswaKeys.includes(key)
-                );
-                const siswaUpdateValues = siswaUpdateKeys.map((key) => (updateData as any)[key]);
-                if (isSiswaB && updateData.isAdmin === 0 && updateData.isDosen === 0) {
-                    if (rowsM2 && rowsM2.length > 0) {
-                        await db.query(`UPDATE mahasiswa SET ${siswaUpdates} WHERE userId = ?`, [
-                            ...siswaUpdateValues,
-                            user2.id,
-                        ]);
-                    } else {
-                        const updateValidationErrors = validateSiswaData(updateData);
-                        if (updateValidationErrors.length > 0) {
-                            res.status(400).json({
-                                message: "Data mahasiswa tidak valid",
-                                errors: updateValidationErrors,
-                            });
-                            return;
-                        }
-
-                        await db.query(
-                            `INSERT INTO mahasiswa (userId, nim, nama, kelas, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)`,
-                            [
-                                user2.id,
-                                updateData.nim,
-                                updateData.nama,
-                                updateData.kelas,
-                                updateData.createdAt,
-                                updateData.updatedAt,
-                            ]
-                        );
-                    }
-                }
 
                 res.status(200).json({ message: "User berhasil diperbarui" });
                 break;
@@ -201,7 +141,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const userIdToDelete = req.query.userId;
                 const fingerprintToDelete = req.query.fingerprint;
 
-                if (!userId && !fingerprint) {
+                if (!userIdToDelete && !fingerprintToDelete) {
                     res.status(400).json({
                         message: "Setidaknya satu parameter diperlukan",
                         fields: ["userId", "fingerprint"],
@@ -213,7 +153,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const paramsDelete: any[] = [];
 
                 if (userIdToDelete) {
-                    whereClauseDelete += (whereClauseDelete ? " AND" : " WHERE") + " id = ?";
+                    whereClauseDelete += (whereClauseDelete ? " AND" : " WHERE") + " nim = ?";
                     paramsDelete.push(userIdToDelete);
                 }
                 if (fingerprintToDelete) {
@@ -223,7 +163,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 }
 
                 const [rowsD]: any = await db.query(
-                    "SELECT * FROM users" + whereClauseDelete,
+                    "SELECT * FROM temp_users" + whereClauseDelete,
                     paramsDelete
                 );
                 if (!rowsD || rowsD.length === 0) {
@@ -233,17 +173,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 const userD = rowsD[0] as UserT;
 
-                if (userD.isAdmin === 0 && userD.isDosen === 0) {
-                    const [rowsM]: any = await db.query(
-                        "SELECT * FROM mahasiswa WHERE userId = ?",
-                        [userD.id]
-                    );
-                    if (rowsM && rowsM.length > 0) {
-                        await db.query("DELETE FROM mahasiswa WHERE userId = ?", [userD.id]);
-                    }
+                // Delete from temp_users table (ESP32 structure)
+                if (userIdToDelete) {
+                    await db.query("DELETE FROM temp_users WHERE nim = ?", [userIdToDelete]);
+                } else if (fingerprintToDelete) {
+                    await db.query("DELETE FROM temp_users WHERE fingerprint = ?", [fingerprintToDelete]);
                 }
-
-                await db.query("DELETE FROM users WHERE id = ?", [userD.id]);
                 res.status(200).json({ message: "User berhasil dihapus" });
                 break;
             default:
@@ -273,7 +208,7 @@ function validateSiswaData(data: CreateUserRequest | UpdateUserRequest) {
     const errors = [];
     if (!data.nim) errors.push("nim");
     if (!data.nama) errors.push("nama");
-    if (typeof data.kelas !== "number") errors.push("kelas");
+    if (!data.kelas) errors.push("kelas");
     if (!data.createdAt) errors.push("createdAt");
     if (!data.updatedAt) errors.push("updatedAt");
     return errors;

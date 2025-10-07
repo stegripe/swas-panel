@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
+import FloatingLoader from "./FloatingLoader";
 
 export default function MonitoringAbsensi() {
+    const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState<any[]>([]);
     const [filter, setFilter] = useState("all");
     const [autoRefresh, setAutoRefresh] = useState(true);
 
     const fetchData = () => {
+        setIsLoading(true);
         fetch("/api/monitoring")
             .then((res) => res.json())
-            .then((res) => setData(res.data || []));
+            .then((res) => setData(res.data || []))
+            .finally(() => setIsLoading(false));
     };
 
     useEffect(() => {
@@ -106,7 +110,7 @@ export default function MonitoringAbsensi() {
                             >
                                 <td className="px-4 py-2">{item.nama}</td>
                                 <td className="px-4 py-2">{item.nim}</td>
-                                <td className="px-4 py-2">{item.nama_kelas || "-"}</td>
+                                <td className="px-4 py-2">{item.kelas || "-"}</td>
                                 <td className="px-4 py-2">
                                     {item.last_attendance ? (
                                         item.last_type === 0 ? (
@@ -123,15 +127,15 @@ export default function MonitoringAbsensi() {
                                 <td className="px-4 py-2">
                                     {item.last_attendance && item.last_type === 0
                                         ? new Date(item.last_attendance).toLocaleTimeString(
-                                              "id-ID",
-                                              {
-                                                  hour: "2-digit",
-                                                  minute: "2-digit",
-                                                  second: "2-digit",
-                                              }
-                                          )
+                                            "id-ID",
+                                            {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                                second: "2-digit",
+                                            }
+                                        )
                                         : item.prev_attendance
-                                          ? new Date(item.prev_attendance).toLocaleTimeString(
+                                            ? new Date(item.prev_attendance).toLocaleTimeString(
                                                 "id-ID",
                                                 {
                                                     hour: "2-digit",
@@ -139,18 +143,18 @@ export default function MonitoringAbsensi() {
                                                     second: "2-digit",
                                                 }
                                             )
-                                          : "-"}
+                                            : "-"}
                                 </td>
                                 <td className="px-4 py-2">
                                     {item.last_attendance && item.last_type === 1
                                         ? new Date(item.last_attendance).toLocaleTimeString(
-                                              "id-ID",
-                                              {
-                                                  hour: "2-digit",
-                                                  minute: "2-digit",
-                                                  second: "2-digit",
-                                              }
-                                          )
+                                            "id-ID",
+                                            {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                                second: "2-digit",
+                                            }
+                                        )
                                         : "-"}
                                 </td>
                             </tr>
@@ -158,12 +162,13 @@ export default function MonitoringAbsensi() {
                     </tbody>
                 </table>
 
-                {filteredData.length === 0 && (
+                {filteredData.length === 0 && !isLoading && (
                     <p className="text-center text-sm text-slate-400 mt-4">
                         Belum ada data absensi.
                     </p>
                 )}
             </div>
+            <FloatingLoader isLoading={isLoading} message="Loading attendance data..." />
         </div>
     );
 }

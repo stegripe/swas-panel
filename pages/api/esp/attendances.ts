@@ -8,33 +8,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         switch (req.method) {
             case "POST":
                 const { fingerprint } = req.body as CreateAttendanceRequest;
-                // Get user ID from fingerprint
-                const [rowsU]: any = await db.query("SELECT id FROM users WHERE fingerprint = ?", [
+                
+                // First try to find in users table (for admin/dosen)
+                let [rowsU]: any = await db.query("SELECT * FROM users WHERE fingerprint = ?", [
                     fingerprint,
                 ]);
+                let isFromUsersTable = true;
+                
+                // If not found in users table, try temp_users table (for students)
+                if (!rowsU || rowsU.length === 0) {
+                    [rowsU] = await db.query("SELECT * FROM temp_users WHERE fingerprints LIKE ?", [
+                        `%${fingerprint}%`,
+                    ]);
+                    isFromUsersTable = false;
+                }
+                
                 if (!rowsU || rowsU.length === 0) {
                     return res.status(404).json({ message: "User tidak ditemukan" });
                 }
                 const user = rowsU[0] as UserT;
 
-                // Make sure the user is a student
+                // Make sure the user is a student (only students can have attendance)
                 if (user.isAdmin === 1 || user.isDosen === 1) {
                     return res.status(403).json({ message: "User bukan mahasiswa" });
                 }
 
-                // Check if data mahasiswa exists
-                const [rowsM]: any = await db.query("SELECT id FROM mahasiswa WHERE userId = ?", [
-                    user.id,
-                ]);
-                if (!rowsM || rowsM.length === 0) {
-                    return res.status(404).json({ message: "Mahasiswa tidak ditemukan" });
+                // Check if nim exists (students should have nim)
+                if (!user.nim) {
+                    return res.status(404).json({ message: "NIM tidak ditemukan" });
                 }
-                const mahasiswa = rowsM[0] as MahasiswaT;
 
                 // Check if attendance already exists
                 const [lastAttendance]: any = await db.query(
                     "SELECT * FROM attendances WHERE nim = ? ORDER BY createdAt DESC LIMIT 1",
-                    [mahasiswa.nim]
+                    [user.nim]
                 );
 
                 // Determine attendance type
@@ -62,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 // Create attendance record
                 const [result]: any = await db.query(
                     "INSERT INTO attendances (nim, type, createdAt) VALUES (?, ?, NOW())",
-                    [mahasiswa.nim, attendance]
+                    [user.nim, attendance]
                 );
 
                 if (result.affectedRows === 0) {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import ColumnManagerModal from "../components/columnManagerModal";
+import FloatingLoader from "../components/FloatingLoader";
 
 export default function Dashboard() {
     const [tables, setTables] = useState<string[]>([]);
@@ -251,10 +252,10 @@ export default function Dashboard() {
                                                         prev.map((c, j) =>
                                                             i === j
                                                                 ? {
-                                                                      ...c,
-                                                                      autoIncrement:
-                                                                          e.target.checked,
-                                                                  }
+                                                                    ...c,
+                                                                    autoIncrement:
+                                                                        e.target.checked,
+                                                                }
                                                                 : c
                                                         )
                                                     )
@@ -271,9 +272,9 @@ export default function Dashboard() {
                                                         prev.map((c, j) =>
                                                             i === j
                                                                 ? {
-                                                                      ...c,
-                                                                      primary: e.target.checked,
-                                                                  }
+                                                                    ...c,
+                                                                    primary: e.target.checked,
+                                                                }
                                                                 : c
                                                         )
                                                     )
@@ -290,9 +291,9 @@ export default function Dashboard() {
                                                         prev.map((c, j) =>
                                                             i === j
                                                                 ? {
-                                                                      ...c,
-                                                                      unique: e.target.checked,
-                                                                  }
+                                                                    ...c,
+                                                                    unique: e.target.checked,
+                                                                }
                                                                 : c
                                                         )
                                                     )
@@ -309,9 +310,9 @@ export default function Dashboard() {
                                                         prev.map((c, j) =>
                                                             i === j
                                                                 ? {
-                                                                      ...c,
-                                                                      nullable: e.target.checked,
-                                                                  }
+                                                                    ...c,
+                                                                    nullable: e.target.checked,
+                                                                }
                                                                 : c
                                                         )
                                                     )
@@ -511,8 +512,8 @@ export default function Dashboard() {
                                                                 className="p-2 rounded bg-slate-800 text-white border border-slate-600"
                                                             />
                                                         ) : ["isDosen", "isAdmin"].includes(
-                                                              key.name
-                                                          ) ? (
+                                                            key.name
+                                                        ) ? (
                                                             <select
                                                                 value={newData[key.name] ?? ""}
                                                                 onChange={(e) =>
@@ -537,13 +538,13 @@ export default function Dashboard() {
                                                                     )
                                                                         ? "boolean"
                                                                         : [
-                                                                                "created_at",
-                                                                                "updated_at",
-                                                                            ].includes(key.name)
-                                                                          ? "datetime"
-                                                                          : key.name === "class"
-                                                                            ? "class (id)"
-                                                                            : key.type
+                                                                            "created_at",
+                                                                            "updated_at",
+                                                                        ].includes(key.name)
+                                                                            ? "datetime"
+                                                                            : key.name === "class"
+                                                                                ? "class (id)"
+                                                                                : key.type
                                                                 }
                                                                 value={newData[key.name] || ""}
                                                                 onChange={(e) =>
@@ -696,12 +697,7 @@ export default function Dashboard() {
                         onRefresh={() => loadTable(selectedTable!)}
                     />
                 )}
-                {loading && (
-                    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex flex-col items-center justify-center">
-                        <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mb-4"></div>
-                        <div className="text-white text-lg">Loading table...</div>
-                    </div>
-                )}
+                <FloatingLoader isLoading={loading} message="Loading table..." />
             </Layout>
         </>
     );

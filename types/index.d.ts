@@ -34,7 +34,7 @@ interface CreateUserRequest {
     fingerprint?: string;
     nim?: string;
     nama?: string;
-    kelas?: number;
+    kelas?: string;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -48,7 +48,7 @@ interface UpdateUserRequest {
     fingerprint?: string;
     nim?: string;
     nama?: string;
-    kelas?: number;
+    kelas?: string;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -59,20 +59,19 @@ interface GetUserResponse {
     isAdmin: 0 | 1;
     isDosen: 0 | 1;
     fingerprint?: string;
-    mahasiswaId?: number;
     nim?: string;
     nama?: string;
-    kelas?: number;
+    kelas?: string;
     createdAt: string;
     updatedAt: string;
 }
 
 interface MahasiswaT {
     id: number;
-    userId: number;
     nim: string;
     nama: string;
-    kelas: number;
+    kelas: string;
+    fingerprints: string;
     createdAt: string; // ISO date string
     updatedAt: string; // ISO date string
 }
@@ -84,6 +83,12 @@ interface UserT {
     isAdmin: 0 | 1;
     isDosen: 0 | 1;
     fingerprint?: string;
+    nim?: string;
+    nama?: string;
+    kelas?: string;
+    fingerprints?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 interface CreateAttendanceRequest {
