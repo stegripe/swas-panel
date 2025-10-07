@@ -55,7 +55,7 @@ export default function MonitoringAbsensi() {
                     <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
-                        className="bg-slate-800 border border-slate-600 text-white text-sm rounded px-2 py-1"
+                        className="bg-slate-800 border border-slate-600 text-white text-sm rounded-sm px-2 py-1"
                     >
                         <option value="all">Semua</option>
                         <option value="today">Hari Ini</option>
@@ -76,14 +76,14 @@ export default function MonitoringAbsensi() {
 
                     <button
                         onClick={goToRaw}
-                        className="ml-4 bg-slate-700 hover:bg-primary px-4 py-2 rounded shadow text-white font-medium"
+                        className="ml-4 bg-slate-700 hover:bg-primary px-4 py-2 rounded-sm shadow-sm text-white font-medium"
                     >
                         Lihat JSON
                     </button>
 
                     <button
                         onClick={goToLogin}
-                        className="ml-4 bg-primary hover:bg-slate-700 px-4 py-2 rounded shadow text-white font-medium"
+                        className="ml-4 bg-primary hover:bg-slate-700 px-4 py-2 rounded-sm shadow-sm text-white font-medium"
                     >
                         Login Admin
                     </button>

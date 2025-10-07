@@ -212,7 +212,7 @@ export default function Dashboard() {
                                 value={newTableName}
                                 onChange={(e) => setNewTableName(e.target.value)}
                                 placeholder="Nama Tabel"
-                                className="mb-2 p-2 w-full bg-slate-900 text-white border border-slate-600 rounded"
+                                className="mb-2 p-2 w-full bg-slate-900 text-white border border-slate-600 rounded-sm"
                             />
                             {newTableColumns.map((col, i) => (
                                 <div key={i} className="flex flex-col gap-2 mb-2">
@@ -227,7 +227,7 @@ export default function Dashboard() {
                                                     )
                                                 )
                                             }
-                                            className="p-2 flex-1 bg-slate-900 text-white border border-slate-600 rounded"
+                                            className="p-2 flex-1 bg-slate-900 text-white border border-slate-600 rounded-sm"
                                         />
                                         <input
                                             placeholder="Tipe (cth: varchar(255), int, datetime)"
@@ -239,7 +239,7 @@ export default function Dashboard() {
                                                     )
                                                 )
                                             }
-                                            className="p-2 flex-1 bg-slate-900 text-white border border-slate-600 rounded"
+                                            className="p-2 flex-1 bg-slate-900 text-white border border-slate-600 rounded-sm"
                                         />
                                     </div>
                                     <div className="flex gap-4 mb-4">
@@ -358,13 +358,13 @@ export default function Dashboard() {
                                             },
                                         ]);
                                     }}
-                                    className="text-sm px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white"
+                                    className="text-sm px-4 py-2 rounded-sm bg-gray-600 hover:bg-gray-700 text-white"
                                 >
                                     Batal
                                 </button>
                                 <button
                                     onClick={handleCreateTable}
-                                    className="text-sm px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="text-sm px-4 py-2 rounded-sm bg-blue-600 hover:bg-blue-700 text-white"
                                 >
                                     Buat Tabel
                                 </button>
@@ -388,7 +388,7 @@ export default function Dashboard() {
                                         onChange={(e) =>
                                             setNewData({ ...newData, name: e.target.value })
                                         }
-                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded"
+                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded-sm"
                                     />
                                     <input
                                         placeholder="Email"
@@ -397,7 +397,7 @@ export default function Dashboard() {
                                         onChange={(e) =>
                                             setNewData({ ...newData, email: e.target.value })
                                         }
-                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded"
+                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded-sm"
                                     />
                                     <input
                                         placeholder="Password"
@@ -406,7 +406,7 @@ export default function Dashboard() {
                                         onChange={(e) =>
                                             setNewData({ ...newData, password: e.target.value })
                                         }
-                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded"
+                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded-sm"
                                     />
                                     <select
                                         value={newData.is_admin ?? ""}
@@ -416,7 +416,7 @@ export default function Dashboard() {
                                                 is_admin: Number(e.target.value),
                                             })
                                         }
-                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded"
+                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded-sm"
                                     >
                                         <option value="">Admin?</option>
                                         <option value="1">Ya</option>
@@ -430,7 +430,7 @@ export default function Dashboard() {
                                                 is_dosen: Number(e.target.value),
                                             })
                                         }
-                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded"
+                                        className="p-2 bg-slate-800 text-white border border-slate-600 rounded-sm"
                                     >
                                         <option value="">Dosen?</option>
                                         <option value="1">Ya</option>
@@ -449,7 +449,7 @@ export default function Dashboard() {
                                         });
                                         if (res.ok) loadTable(selectedTable);
                                     }}
-                                    className="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                                    className="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-sm"
                                 >
                                     Tambah Pengguna
                                 </button>
@@ -485,7 +485,7 @@ export default function Dashboard() {
                                                                         ),
                                                                     })
                                                                 }
-                                                                className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                                className="p-2 rounded-sm bg-slate-800 text-white border border-slate-600"
                                                             >
                                                                 <option value="">
                                                                     (pilih kelas)
@@ -509,7 +509,7 @@ export default function Dashboard() {
                                                                         [key.name]: e.target.value,
                                                                     })
                                                                 }
-                                                                className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                                className="p-2 rounded-sm bg-slate-800 text-white border border-slate-600"
                                                             />
                                                         ) : ["isDosen", "isAdmin"].includes(
                                                             key.name
@@ -524,7 +524,7 @@ export default function Dashboard() {
                                                                         ),
                                                                     })
                                                                 }
-                                                                className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                                className="p-2 rounded-sm bg-slate-800 text-white border border-slate-600"
                                                             >
                                                                 <option value="">(pilih)</option>
                                                                 <option value="1">true</option>
@@ -553,7 +553,7 @@ export default function Dashboard() {
                                                                         [key.name]: e.target.value,
                                                                     })
                                                                 }
-                                                                className="p-2 rounded bg-slate-800 text-white border border-slate-600"
+                                                                className="p-2 rounded-sm bg-slate-800 text-white border border-slate-600"
                                                             />
                                                         )}
                                                     </div>
@@ -571,7 +571,7 @@ export default function Dashboard() {
                                                 });
                                                 if (res.ok) loadTable(selectedTable);
                                             }}
-                                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded mb-6"
+                                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-sm mb-6"
                                         >
                                             Add Row
                                         </button>
@@ -581,13 +581,13 @@ export default function Dashboard() {
                                     <div>
                                         <button
                                             onClick={() => setShowColumnModal(true)}
-                                            className="bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-3 py-1 rounded mr-2"
+                                            className="bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-3 py-1 rounded-sm mr-2"
                                         >
                                             🛠️ Kelola Kolom
                                         </button>
                                         <button
                                             onClick={exportToExcel}
-                                            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
+                                            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded-sm"
                                         >
                                             Export Excel
                                         </button>
@@ -631,7 +631,7 @@ export default function Dashboard() {
                                                                                 e.target.value,
                                                                         })
                                                                     }
-                                                                    className="w-full p-1 rounded bg-slate-700 text-white"
+                                                                    className="w-full p-1 rounded-sm bg-slate-700 text-white"
                                                                 />
                                                             ) : (
                                                                 row[key.name]

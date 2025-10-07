@@ -29,18 +29,18 @@ export default function Login() {
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-2 mb-4 rounded bg-slate-800 border border-slate-600 text-white"
+                    className="w-full p-2 mb-4 rounded-sm bg-slate-800 border border-slate-600 text-white"
                 />
                 <input
                     type="password"
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full p-2 mb-6 rounded bg-slate-800 border border-slate-600 text-white"
+                    className="w-full p-2 mb-6 rounded-sm bg-slate-800 border border-slate-600 text-white"
                 />
                 <button
                     onClick={handleLogin}
-                    className="w-full bg-primary hover:bg-primary.light text-white p-2 rounded font-medium"
+                    className="w-full bg-primary hover:bg-primary.light text-white p-2 rounded-sm font-medium"
                 >
                     Login
                 </button>

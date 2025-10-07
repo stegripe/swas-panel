@@ -32,7 +32,7 @@ export default function Layout({
                 {onCreateTableClick && (
                     <button
                         onClick={onCreateTableClick}
-                        className="w-full mb-4 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded text-sm"
+                        className="w-full mb-4 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-sm text-sm"
                     >
                         + Buat Tabel
                     </button>
@@ -69,7 +69,7 @@ export default function Layout({
                         await fetch("/api/logout");
                         window.location.href = "/login";
                     }}
-                    className="mt-4 px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white text-sm"
+                    className="mt-4 px-4 py-2 rounded-sm bg-red-600 hover:bg-red-700 text-white text-sm"
                 >
                     Logout
                 </button>

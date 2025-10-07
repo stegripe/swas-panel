@@ -91,7 +91,7 @@ export default function ColumnManagerModal({
                                     e.target.value !== col.name &&
                                     updateColumn(col.name, e.target.value, col.type)
                                 }
-                                className="bg-slate-900 border border-slate-600 text-white rounded px-2 py-1 flex-1"
+                                className="bg-slate-900 border border-slate-600 text-white rounded-sm px-2 py-1 flex-1"
                             />
                             <input
                                 defaultValue={col.type}
@@ -99,7 +99,7 @@ export default function ColumnManagerModal({
                                     e.target.value !== col.type &&
                                     updateColumn(col.name, col.name, e.target.value)
                                 }
-                                className="bg-slate-900 border border-slate-600 text-white rounded px-2 py-1 flex-1"
+                                className="bg-slate-900 border border-slate-600 text-white rounded-sm px-2 py-1 flex-1"
                             />
                             <button
                                 onClick={() => deleteColumn(col.name)}
@@ -118,13 +118,13 @@ export default function ColumnManagerModal({
                         placeholder="Kolom Baru"
                         value={newColName}
                         onChange={(e) => setNewColName(e.target.value)}
-                        className="flex-1 bg-slate-900 border border-slate-600 text-white rounded px-2 py-1"
+                        className="flex-1 bg-slate-900 border border-slate-600 text-white rounded-sm px-2 py-1"
                     />
                     <input
                         placeholder="Tipe"
                         value={newColType}
                         onChange={(e) => setNewColType(e.target.value)}
-                        className="flex-1 bg-slate-900 border border-slate-600 text-white rounded px-2 py-1"
+                        className="flex-1 bg-slate-900 border border-slate-600 text-white rounded-sm px-2 py-1"
                     />
                 </div>
 
@@ -166,13 +166,13 @@ export default function ColumnManagerModal({
                 <div className="flex justify-end">
                     <button
                         onClick={addColumn}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-sm"
                     >
                         + Tambah
                     </button>
                     <button
                         onClick={onClose}
-                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded ml-2"
+                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-sm ml-2"
                     >
                         Tutup
                     </button>
