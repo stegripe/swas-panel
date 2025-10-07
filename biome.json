@@ -1,0 +1,27 @@
+{
+    "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+    "extends": ["@stegripe/biomejs-config"],
+    "files": {
+        "includes": ["**", "!**/ui/*"]
+    },
+    "linter": {
+        "domains": {
+            "next": "all"
+        },
+        "rules": {
+            "style": {
+                "noCommonJs": "off",
+                "noRestrictedGlobals": "off",
+                "useExplicitLengthCheck": "off",
+                "useNamingConvention": "off"
+            },
+            "suspicious": {
+                "noArrayIndexKey": "off",
+                "noUnknownAtRules": "off"
+            },
+            "nursery": {
+                "useExplicitType": "off"
+            }
+        }
+    }
+}

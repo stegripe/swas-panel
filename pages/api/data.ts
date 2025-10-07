@@ -1,6 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { RowDataPacket } from "mysql2";
+import { type RowDataPacket } from "mysql2";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { getConnection } from "../../lib/db";
+import { type ColumnData, type SQLResponse } from "../../types";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const db = await getConnection();
@@ -16,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             // Ambil data
             const [rows] = await db.query<RowDataPacket[]>(
-                `SELECT * FROM \`${tableName}\` LIMIT 100`
+                `SELECT * FROM \`${tableName}\` LIMIT 100`,
             );
 
             const [desc] = await db.query(`DESCRIBE \`${tableName}\``);
@@ -34,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         res.status(405).json({ message: "Method not allowed" });
-    } catch (err: any) {
+    } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
     } finally {

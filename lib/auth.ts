@@ -11,7 +11,7 @@ export async function verifyJwtToken(token: string) {
     try {
         const verified = await jwtVerify(token, new TextEncoder().encode(SECRET));
         return verified.payload;
-    } catch (error) {
+    } catch (_) {
         throw new Error("Your token is expired");
     }
 }

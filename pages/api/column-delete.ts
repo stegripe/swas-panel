@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { getConnection } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
         await db.execute(`ALTER TABLE \`${table}\` DROP COLUMN \`${columnName}\``);
         res.status(200).json({ message: "Column deleted successfully" });
-    } catch (err: any) {
+    } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
     } finally {

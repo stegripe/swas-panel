@@ -1,6 +1,6 @@
 import mysql from "mysql2/promise";
 
-export async function getConnection() {
+export function getConnection() {
     return mysql.createConnection({
         host: process.env.DB_HOST,
         port: Number(process.env.DB_PORT),

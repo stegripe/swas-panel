@@ -1,6 +1,0 @@
-node_modules
-pnpm-lock.yaml
-.github
-.next
-next.config.js
-out

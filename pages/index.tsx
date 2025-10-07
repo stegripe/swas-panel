@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import MonitoringAbsensi from "../components/MonitoringAbsensi";
 import FloatingLoader from "../components/FloatingLoader";
+import MonitoringAbsensi from "../components/MonitoringAbsensi";
 
 export default function Home() {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -11,11 +11,13 @@ export default function Home() {
             .catch(() => setIsLoggedIn(false));
     }, []);
 
-    if (isLoggedIn === null) return (
-        <div className="min-h-screen bg-background">
-            <FloatingLoader isLoading={true} message="Checking authentication..." />
-        </div>
-    );
+    if (isLoggedIn === null) {
+        return (
+            <div className="min-h-screen bg-background">
+                <FloatingLoader isLoading={true} message="Checking authentication..." />
+            </div>
+        );
+    }
 
     if (isLoggedIn) {
         if (typeof window !== "undefined") {

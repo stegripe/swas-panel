@@ -1,12 +1,13 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { getConnection } from "../../lib/db";
+import { type ColumnAddRequest } from "../../types";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "POST") {
         return res.status(405).json({ message: "Method not allowed" });
     }
 
-    let {
+    const {
         table,
         columnName,
         columnType,
@@ -26,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const validColumnName = /^[a-zA-Z0-9_]+$/.test(columnName);
     const validColumnType =
         /^(int|varchar|text|date|datetime|timestamp|float|double|decimal)\(?[0-9]*\)?$/.test(
-            columnType
+            columnType,
         );
     if (!validColumnName || !validColumnType) {
         return res.status(400).json({ message: "Invalid column name or type" });
@@ -72,7 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await db.execute(query);
 
         res.status(200).json({ message: "Column added successfully" });
-    } catch (err: any) {
+    } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
     } finally {

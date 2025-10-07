@@ -1,4 +1,5 @@
-import { NextApiRequest, NextApiResponse } from "next";
+/** biome-ignore-all lint/suspicious/noExplicitAny: needed */
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { getConnection } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -35,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Prepare the WHERE clause
         let query = `UPDATE \`${table}\` SET ${setClause}`;
-        let params: any[] = [...setValues];
+        const params: any[] = [...setValues];
 
         if (primaryKey && typeof id !== "undefined") {
             // Use primary key for WHERE clause
@@ -46,9 +47,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const whereClauses = Object.keys(criteria).map((key) => {
                 if (criteria[key] === null) {
                     return `\`${key}\` IS NULL`; // Handle NULL values
-                } else {
-                    return `\`${key}\` = ?`;
                 }
+                return `\`${key}\` = ?`;
             });
 
             query += ` WHERE ${whereClauses.join(" AND ")}`;
@@ -65,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         res.status(200).json({ message: "Update success" });
-    } catch (err: any) {
+    } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
     } finally {

@@ -1,5 +1,5 @@
-import React from "react";
 import { LayoutDashboard, Trash2 } from "lucide-react";
+import type React from "react";
 
 interface Props {
     children: React.ReactNode;
@@ -31,6 +31,7 @@ export default function Layout({
 
                 {onCreateTableClick && (
                     <button
+                        type="button"
                         onClick={onCreateTableClick}
                         className="w-full mb-4 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-sm text-sm"
                     >
@@ -42,6 +43,7 @@ export default function Layout({
                     {tables.map((table) => (
                         <div key={table} className="flex items-center justify-between group">
                             <button
+                                type="button"
                                 onClick={() => onSelect(table)}
                                 className={`flex-1 text-left px-4 py-2 rounded font-medium ${
                                     selected === table
@@ -53,6 +55,7 @@ export default function Layout({
                             </button>
                             {onDeleteTable && (
                                 <button
+                                    type="button"
                                     onClick={() => onDeleteTable(table)}
                                     className="ml-2 p-1 text-red-400 hover:text-red-600"
                                     title={`Hapus tabel ${table}`}
@@ -65,6 +68,7 @@ export default function Layout({
                 </div>
 
                 <button
+                    type="button"
                     onClick={async () => {
                         await fetch("/api/logout");
                         window.location.href = "/login";

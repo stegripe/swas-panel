@@ -1,6 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { getConnection } from "../../lib/db";
 import ExcelJS from "exceljs";
+import { type NextApiRequest, type NextApiResponse } from "next";
+import { getConnection } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { table } = req.query;
@@ -11,6 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const db = await getConnection();
     try {
+        // biome-ignore lint/suspicious/noExplicitAny: needed
         const [rows]: any = await db.query(`SELECT * FROM \`${table}\``);
 
         const workbook = new ExcelJS.Workbook();
@@ -25,12 +26,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.setHeader("Content-Disposition", `attachment; filename=${table}.xlsx`);
         res.setHeader(
             "Content-Type",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         );
 
         const buffer = await workbook.xlsx.writeBuffer();
         res.send(buffer);
-    } catch (err: any) {
+    } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
     } finally {

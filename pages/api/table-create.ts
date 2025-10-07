@@ -1,5 +1,6 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { getConnection } from "../../lib/db";
+import { type ColumnData } from "../../types";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "POST") {
@@ -25,9 +26,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     colDef += " AUTO_INCREMENT";
                 }
             }
-            if (col.unique && !col.primary) colDef += " UNIQUE";
-            if (col.nullable && !col.primary) colDef += " NULL";
-            else if (!col.nullable) colDef += " NOT NULL";
+            if (col.unique && !col.primary) {
+                colDef += " UNIQUE";
+            }
+            if (col.nullable && !col.primary) {
+                colDef += " NULL";
+            } else if (!col.nullable) {
+                colDef += " NOT NULL";
+            }
             return colDef;
         })
         .join(", ");
@@ -36,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
         await db.query(`CREATE TABLE \`${name}\` (${cols})`);
         return res.status(200).json({ message: "Table created" });
-    } catch (err: any) {
+    } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
     } finally {

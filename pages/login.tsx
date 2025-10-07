@@ -39,6 +39,7 @@ export default function Login() {
                     className="w-full p-2 mb-6 rounded-sm bg-slate-800 border border-slate-600 text-white"
                 />
                 <button
+                    type="button"
                     onClick={handleLogin}
                     className="w-full bg-primary hover:bg-primary.light text-white p-2 rounded-sm font-medium"
                 >

@@ -1,12 +1,19 @@
-import { NextApiRequest, NextApiResponse } from "next";
+/** biome-ignore-all lint/suspicious/noExplicitAny: needed */
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { getConnection } from "../../../lib/db";
+import {
+    type CreateUserRequest,
+    type GetUserResponse,
+    type UpdateUserRequest,
+    type UserT,
+} from "../../../types";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const db = await getConnection();
 
     try {
         switch (req.method) {
-            case "GET":
+            case "GET": {
                 const userId = req.query.userId;
                 const fingerprint = req.query.fingerprint;
 
@@ -22,16 +29,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const params: any[] = [];
 
                 if (userId) {
-                    whereClause += (whereClause ? " AND" : " WHERE") + " nim = ?";
+                    whereClause += `${whereClause ? " AND" : " WHERE"} nim = ?`;
                     params.push(userId);
                 }
                 if (fingerprint) {
-                    whereClause += (whereClause ? " AND" : " WHERE") + " fingerprint = ?";
+                    whereClause += `${whereClause ? " AND" : " WHERE"} fingerprint = ?`;
                     params.push(fingerprint);
                 }
 
                 // Query from temp_users table (ESP32 structure)
-                const [rows]: any = await db.query("SELECT * FROM temp_users" + whereClause, params);
+                const [rows]: any = await db.query(
+                    `SELECT * FROM temp_users${whereClause}`,
+                    params,
+                );
                 if (!rows || rows.length === 0) {
                     res.status(404).json({ message: "User tidak ditemukan" });
                     return;
@@ -53,7 +63,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 res.status(200).json(userData);
                 break;
-            case "POST":
+            }
+            case "POST": {
                 const createData = req.body as CreateUserRequest;
                 const isSiswaA = createData.isAdmin === 0 && createData.isDosen === 0;
 
@@ -84,15 +95,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         createData.fingerprint,
                         createData.createdAt || new Date().toISOString(),
                         createData.updatedAt || new Date().toISOString(),
-                    ]
+                    ],
                 );
 
                 res.status(201).json({ message: "User berhasil dibuat" });
                 break;
-            case "PATCH":
+            }
+            case "PATCH": {
                 const updateData = req.body as UpdateUserRequest;
                 const identifier = req.query.userId || req.query.fingerprint;
-                
+
                 if (!identifier) {
                     res.status(400).json({ message: "userId atau fingerprint diperlukan" });
                     return;
@@ -105,19 +117,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     whereClauseUpdate = "WHERE fingerprint = ?";
                 }
 
-                const [rowsU2]: any = await db.query(`SELECT * FROM temp_users ${whereClauseUpdate}`, [
-                    identifier,
-                ]);
+                const [rowsU2]: any = await db.query(
+                    `SELECT * FROM temp_users ${whereClauseUpdate}`,
+                    [identifier],
+                );
 
                 if (!rowsU2 || rowsU2.length === 0) {
                     res.status(404).json({ message: "User tidak ditemukan" });
                     return;
                 }
 
-                const user2 = rowsU2[0] as UserT;
-
                 // Update temp_users table (ESP32 structure)
-                const validKeys = ["email", "password", "isAdmin", "isDosen", "fingerprint", "nim", "nama", "kelas", "fingerprints", "createdAt", "updatedAt"];
+                const validKeys = [
+                    "email",
+                    "password",
+                    "isAdmin",
+                    "isDosen",
+                    "fingerprint",
+                    "nim",
+                    "nama",
+                    "kelas",
+                    "fingerprints",
+                    "createdAt",
+                    "updatedAt",
+                ];
                 const updates = Object.keys(updateData)
                     .filter((key) => validKeys.includes(key))
                     .map((key) => `${key} = ?`)
@@ -129,7 +152,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 }
 
                 const updateKeys = Object.keys(updateData).filter((key) => validKeys.includes(key));
-                const updateValues = updateKeys.map((key) => (updateData as any)[key]);
+                const updateValues = updateKeys.map((key) => updateData[key]);
                 await db.query(`UPDATE temp_users SET ${updates} ${whereClauseUpdate}`, [
                     ...updateValues,
                     identifier,
@@ -137,7 +160,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 res.status(200).json({ message: "User berhasil diperbarui" });
                 break;
-            case "DELETE":
+            }
+            case "DELETE": {
                 const userIdToDelete = req.query.userId;
                 const fingerprintToDelete = req.query.fingerprint;
 
@@ -153,39 +177,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const paramsDelete: any[] = [];
 
                 if (userIdToDelete) {
-                    whereClauseDelete += (whereClauseDelete ? " AND" : " WHERE") + " nim = ?";
+                    whereClauseDelete += `${whereClauseDelete ? " AND" : " WHERE"} nim = ?`;
                     paramsDelete.push(userIdToDelete);
                 }
                 if (fingerprintToDelete) {
-                    whereClauseDelete +=
-                        (whereClauseDelete ? " AND" : " WHERE") + " fingerprint = ?";
+                    whereClauseDelete += `${whereClauseDelete ? " AND" : " WHERE"} fingerprint = ?`;
                     paramsDelete.push(fingerprintToDelete);
                 }
 
                 const [rowsD]: any = await db.query(
-                    "SELECT * FROM temp_users" + whereClauseDelete,
-                    paramsDelete
+                    `SELECT * FROM temp_users${whereClauseDelete}`,
+                    paramsDelete,
                 );
                 if (!rowsD || rowsD.length === 0) {
                     res.status(404).json({ message: "User tidak ditemukan" });
                     return;
                 }
 
-                const userD = rowsD[0] as UserT;
-
                 // Delete from temp_users table (ESP32 structure)
                 if (userIdToDelete) {
                     await db.query("DELETE FROM temp_users WHERE nim = ?", [userIdToDelete]);
                 } else if (fingerprintToDelete) {
-                    await db.query("DELETE FROM temp_users WHERE fingerprint = ?", [fingerprintToDelete]);
+                    await db.query("DELETE FROM temp_users WHERE fingerprint = ?", [
+                        fingerprintToDelete,
+                    ]);
                 }
                 res.status(200).json({ message: "User berhasil dihapus" });
                 break;
+            }
             default:
                 res.setHeader("Allow", ["GET", "POST", "PATCH"]);
                 res.status(405).end(`Method ${req.method} Not Allowed`);
         }
-    } catch (error: any) {
+    } catch (error) {
         console.error(error);
         res.status(500).json({ message: error.message });
     } finally {
@@ -195,10 +219,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 function validateUserData(data: CreateUserRequest) {
     const errors = [];
+    // biome-ignore lint/style/useBlockStatements: short condition
     if (!data.email) errors.push("email");
+    // biome-ignore lint/style/useBlockStatements: short condition
     if (!data.password) errors.push("password");
+    // biome-ignore lint/style/useBlockStatements: short condition
     if (typeof data.isAdmin !== "number" || data.isAdmin < 0 || data.isAdmin > 1)
         errors.push("isAdmin");
+    // biome-ignore lint/style/useBlockStatements: short condition
     if (typeof data.isDosen !== "number" || data.isDosen < 0 || data.isDosen > 1)
         errors.push("isDosen");
     return errors;
@@ -206,10 +234,15 @@ function validateUserData(data: CreateUserRequest) {
 
 function validateSiswaData(data: CreateUserRequest | UpdateUserRequest) {
     const errors = [];
+    // biome-ignore lint/style/useBlockStatements: short condition
     if (!data.nim) errors.push("nim");
+    // biome-ignore lint/style/useBlockStatements: short condition
     if (!data.nama) errors.push("nama");
+    // biome-ignore lint/style/useBlockStatements: short condition
     if (!data.kelas) errors.push("kelas");
+    // biome-ignore lint/style/useBlockStatements: short condition
     if (!data.createdAt) errors.push("createdAt");
+    // biome-ignore lint/style/useBlockStatements: short condition
     if (!data.updatedAt) errors.push("updatedAt");
     return errors;
 }

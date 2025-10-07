@@ -1,28 +1,28 @@
-import { NextApiRequest, NextApiResponse } from "next";
+/** biome-ignore-all lint/suspicious/noExplicitAny: needed */
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { getConnection } from "../../../lib/db";
+import { type AttendanceT, type CreateAttendanceRequest, type UserT } from "../../../types";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const db = await getConnection();
 
     try {
         switch (req.method) {
-            case "POST":
+            case "POST": {
                 const { fingerprint } = req.body as CreateAttendanceRequest;
-                
+
                 // First try to find in users table (for admin/dosen)
                 let [rowsU]: any = await db.query("SELECT * FROM users WHERE fingerprint = ?", [
                     fingerprint,
                 ]);
-                let isFromUsersTable = true;
-                
+
                 // If not found in users table, try temp_users table (for students)
                 if (!rowsU || rowsU.length === 0) {
                     [rowsU] = await db.query("SELECT * FROM temp_users WHERE fingerprints LIKE ?", [
                         `%${fingerprint}%`,
                     ]);
-                    isFromUsersTable = false;
                 }
-                
+
                 if (!rowsU || rowsU.length === 0) {
                     return res.status(404).json({ message: "User tidak ditemukan" });
                 }
@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 // Check if attendance already exists
                 const [lastAttendance]: any = await db.query(
                     "SELECT * FROM attendances WHERE nim = ? ORDER BY createdAt DESC LIMIT 1",
-                    [user.nim]
+                    [user.nim],
                 );
 
                 // Determine attendance type
@@ -69,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 // Create attendance record
                 const [result]: any = await db.query(
                     "INSERT INTO attendances (nim, type, createdAt) VALUES (?, ?, NOW())",
-                    [user.nim, attendance]
+                    [user.nim, attendance],
                 );
 
                 if (result.affectedRows === 0) {
@@ -78,6 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 res.status(201).json({ message: "Absensi berhasil dibuat" });
                 break;
+            }
             default:
                 res.setHeader("Allow", ["POST"]);
                 res.status(405).end(`Method ${req.method} Not Allowed`);

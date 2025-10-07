@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { type ColumnAddRequest, type ColumnData } from "../types";
 
 interface ColumnManagerProps {
     table: string;
@@ -21,6 +22,7 @@ export default function ColumnManagerModal({
     const [isNullable, setIsNullable] = useState(false);
 
     const addColumn = async () => {
+        // biome-ignore lint/style/useBlockStatements: short condition
         if (!newColName || !newColType) return;
         await fetch("/api/column-add", {
             method: "POST",
@@ -45,6 +47,7 @@ export default function ColumnManagerModal({
     };
 
     const updateColumn = async (oldName: string, newName: string, newType: string) => {
+        // biome-ignore lint/style/useBlockStatements: short condition
         if (!newName || !newType) return;
         await fetch("/api/column-update", {
             method: "PUT",
@@ -55,6 +58,7 @@ export default function ColumnManagerModal({
     };
 
     const deleteColumn = async (name: string) => {
+        // biome-ignore lint/style/useBlockStatements: short condition
         if (!confirm(`Hapus kolom ${name}?`)) return;
         await fetch("/api/column-delete", {
             method: "DELETE",
@@ -102,6 +106,7 @@ export default function ColumnManagerModal({
                                 className="bg-slate-900 border border-slate-600 text-white rounded-sm px-2 py-1 flex-1"
                             />
                             <button
+                                type="button"
                                 onClick={() => deleteColumn(col.name)}
                                 className="text-red-400 hover:text-red-600"
                             >
@@ -165,12 +170,14 @@ export default function ColumnManagerModal({
 
                 <div className="flex justify-end">
                     <button
+                        type="button"
                         onClick={addColumn}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-sm"
                     >
                         + Tambah
                     </button>
                     <button
+                        type="button"
                         onClick={onClose}
                         className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-sm ml-2"
                     >

@@ -1,6 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { getConnection } from "../../lib/db";
 import bcrypt from "bcryptjs";
+import { type NextApiRequest, type NextApiResponse } from "next";
+import { getConnection } from "../../lib/db";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== "POST") {
@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await db.execute(`INSERT INTO \`${table}\` (${keys}) VALUES (${placeholders})`, values);
 
         res.status(200).json({ message: "Insert success" });
-    } catch (err: any) {
+    } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
     } finally {
