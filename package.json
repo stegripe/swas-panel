@@ -22,7 +22,7 @@
         "@biomejs/biome": "^2.2.5",
         "@stegripe/biomejs-config": "^1.1.0",
         "@tailwindcss/postcss": "^4.1.14",
-        "@types/node": "22.18.9",
+        "@types/node": "22.18.10",
         "@types/react": "19.2.2",
         "postcss": "^8.5.6",
         "tailwindcss": "^4.1.14",
