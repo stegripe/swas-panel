@@ -66,7 +66,7 @@ export default function Dashboard() {
 
     const loadTable = (table: string) => {
         setSelectedTable(table);
-        
+
         // If Settings is selected, don't load table data
         if (table === "⚙️ Settings") {
             setRows([]);
@@ -187,14 +187,14 @@ export default function Dashboard() {
             return "-";
         }
         const date = new Date(utcDatetime);
-        return date.toLocaleString('id-ID', { 
-            timeZone: 'Asia/Jakarta',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
+        return date.toLocaleString("id-ID", {
+            timeZone: "Asia/Jakarta",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
         });
     };
 
@@ -205,10 +205,10 @@ export default function Dashboard() {
         }
         const date = new Date(utcDatetime);
         const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
@@ -527,7 +527,7 @@ export default function Dashboard() {
             )}
             {selectedTable === "⚙️ Settings" ? (
                 <SettingsPanel />
-            // biome-ignore lint/style/noNestedTernary: welp
+                // biome-ignore lint/style/noNestedTernary: welp
             ) : selectedTable ? (
                 <>
                     <h2 className="text-xl font-bold mb-4 text-white">Table: {selectedTable}</h2>
@@ -707,30 +707,39 @@ export default function Dashboard() {
                                                             key.type === "datetime" ? (
                                                                 <input
                                                                     type="datetime-local"
-                                                                    value={toDatetimeLocalFormat(editData[key.name])}
+                                                                    value={toDatetimeLocalFormat(
+                                                                        editData[key.name],
+                                                                    )}
                                                                     onChange={(e) =>
                                                                         setEditData({
                                                                             ...editData,
-                                                                            [key.name]: e.target.value,
+                                                                            [key.name]:
+                                                                                e.target.value,
                                                                         })
                                                                     }
                                                                     className="w-full p-1 rounded bg-slate-700 text-white"
                                                                 />
-                                                            // biome-ignore lint/style/noNestedTernary: fuck you biome
+                                                                // biome-ignore lint/style/noNestedTernary: fuck you biome
                                                             ) : key.type === "tinyint(1)" ? (
                                                                 <select
                                                                     value={editData[key.name] ?? ""}
                                                                     onChange={(e) =>
                                                                         setEditData({
                                                                             ...editData,
-                                                                            [key.name]: Number(e.target.value),
+                                                                            [key.name]: Number(
+                                                                                e.target.value,
+                                                                            ),
                                                                         })
                                                                     }
                                                                     className="w-full p-1 rounded bg-slate-700 text-white"
                                                                 >
                                                                     <option value="">-</option>
-                                                                    <option value="0">0 (False)</option>
-                                                                    <option value="1">1 (True)</option>
+                                                                    <option value="0">
+                                                                        0 (False)
+                                                                    </option>
+                                                                    <option value="1">
+                                                                        1 (True)
+                                                                    </option>
                                                                 </select>
                                                             ) : (
                                                                 <input
@@ -739,7 +748,8 @@ export default function Dashboard() {
                                                                     onChange={(e) =>
                                                                         setEditData({
                                                                             ...editData,
-                                                                            [key.name]: e.target.value,
+                                                                            [key.name]:
+                                                                                e.target.value,
                                                                         })
                                                                     }
                                                                     className="w-full p-1 rounded bg-slate-700 text-white"

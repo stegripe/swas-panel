@@ -75,12 +75,12 @@ export default function MonitoringAbsensi() {
     const calculateLiveDuration = (item: MonitoringT) => {
         // biome-ignore lint/style/useBlockStatements: short condition
         if (!item.checkin_time) return "-";
-        
+
         const checkin = new Date(item.checkin_time);
         // If checked out, use checkout time; otherwise use current time
         const endTime = item.checkout_time ? new Date(item.checkout_time) : currentTime;
         const durationSeconds = Math.floor((endTime.getTime() - checkin.getTime()) / 1000);
-        
+
         const hours = Math.floor(durationSeconds / 3600);
         const mins = Math.floor((durationSeconds % 3600) / 60);
         const secs = durationSeconds % 60;
@@ -198,7 +198,9 @@ export default function MonitoringAbsensi() {
                                 <td className="px-4 py-2">{getCheckInTime(item)}</td>
                                 <td className="px-4 py-2">{getCheckOutTime(item)}</td>
                                 <td className="px-4 py-2">{calculateLiveDuration(item)}</td>
-                                <td className="px-4 py-2">{formatLateness(item.lateness_minutes)}</td>
+                                <td className="px-4 py-2">
+                                    {formatLateness(item.lateness_minutes)}
+                                </td>
                             </tr>
                         ))}
                     </tbody>

@@ -75,14 +75,15 @@ export default function SettingsPanel() {
             const downloadUrl = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = downloadUrl;
-            const filename = startDate && endDate 
-                ? `attendances_${startDate}_to_${endDate}.xlsx`
-                : `attendances_${new Date().toISOString().split('T')[0]}.xlsx`;
+            const filename =
+                startDate && endDate
+                    ? `attendances_${startDate}_to_${endDate}.xlsx`
+                    : `attendances_${new Date().toISOString().split("T")[0]}.xlsx`;
             link.setAttribute("download", filename);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             setMessage("✅ Data berhasil diexport!");
             setTimeout(() => setMessage(""), 3000);
         } catch (error) {
@@ -96,10 +97,13 @@ export default function SettingsPanel() {
     return (
         <div className="p-6 bg-slate-900 rounded-lg border border-slate-700">
             <h2 className="text-2xl font-bold mb-6 text-white">Pengaturan Jam Kerja</h2>
-            
+
             <div className="space-y-4 max-w-md">
                 <div>
-                    <label htmlFor="jamMasuk" className="block text-sm font-medium text-slate-300 mb-2">
+                    <label
+                        htmlFor="jamMasuk"
+                        className="block text-sm font-medium text-slate-300 mb-2"
+                    >
                         Jam Masuk yang Diharapkan
                     </label>
                     <input
@@ -115,7 +119,10 @@ export default function SettingsPanel() {
                 </div>
 
                 <div>
-                    <label htmlFor="jamPulang" className="block text-sm font-medium text-slate-300 mb-2">
+                    <label
+                        htmlFor="jamPulang"
+                        className="block text-sm font-medium text-slate-300 mb-2"
+                    >
                         Jam Pulang yang Diharapkan
                     </label>
                     <input
@@ -139,9 +146,7 @@ export default function SettingsPanel() {
                     >
                         Simpan Pengaturan
                     </button>
-                    {message && (
-                        <span className="text-sm">{message}</span>
-                    )}
+                    {message && <span className="text-sm">{message}</span>}
                 </div>
             </div>
 
@@ -151,7 +156,10 @@ export default function SettingsPanel() {
                     <li>• Jam masuk digunakan untuk menghitung keterlambatan mahasiswa</li>
                     <li>• Jam pulang digunakan sebagai referensi waktu kerja standar</li>
                     <li>• Durasi di kampus dihitung dari waktu masuk hingga waktu keluar aktual</li>
-                    <li>• Keterlambatan hanya dihitung jika mahasiswa datang setelah jam masuk yang ditetapkan</li>
+                    <li>
+                        • Keterlambatan hanya dihitung jika mahasiswa datang setelah jam masuk yang
+                        ditetapkan
+                    </li>
                 </ul>
             </div>
 
@@ -161,10 +169,13 @@ export default function SettingsPanel() {
                 <p className="text-sm text-slate-400 mb-4">
                     Export data absensi lengkap dengan informasi keterlambatan ke format Excel
                 </p>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label htmlFor="startDate" className="block text-sm font-medium text-slate-300 mb-2">
+                        <label
+                            htmlFor="startDate"
+                            className="block text-sm font-medium text-slate-300 mb-2"
+                        >
                             Tanggal Mulai (opsional)
                         </label>
                         <input
@@ -176,7 +187,10 @@ export default function SettingsPanel() {
                         />
                     </div>
                     <div>
-                        <label htmlFor="endDate" className="block text-sm font-medium text-slate-300 mb-2">
+                        <label
+                            htmlFor="endDate"
+                            className="block text-sm font-medium text-slate-300 mb-2"
+                        >
                             Tanggal Akhir (opsional)
                         </label>
                         <input
@@ -212,7 +226,8 @@ export default function SettingsPanel() {
                 </div>
 
                 <p className="text-xs text-slate-500 mt-3">
-                    Kosongkan tanggal untuk export semua data. Isi kedua tanggal untuk filter range tertentu.
+                    Kosongkan tanggal untuk export semua data. Isi kedua tanggal untuk filter range
+                    tertentu.
                 </p>
             </div>
 
@@ -220,4 +235,3 @@ export default function SettingsPanel() {
         </div>
     );
 }
-

@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: fuck you biome */
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { getConnection } from "../../lib/db";
 
@@ -17,25 +18,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (req.method === "GET") {
             const [rows] = await db.query("SELECT * FROM settings");
-            
+
             // Convert to key-value object for easier access
             const settings: any = {};
-            (rows as any[]).forEach((row: any) => {
+            for (const row of rows as any[]) {
                 settings[row.setting_key] = row.setting_value;
-            });
+            }
 
             // Set defaults if not exist
             if (!settings.jam_masuk) {
                 await db.query(
                     "INSERT INTO settings (setting_key, setting_value, description) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = setting_value",
-                    ["jam_masuk", "08:00", "Jam masuk yang diharapkan (format HH:mm)"]
+                    ["jam_masuk", "08:00", "Jam masuk yang diharapkan (format HH:mm)"],
                 );
                 settings.jam_masuk = "08:00";
             }
             if (!settings.jam_pulang) {
                 await db.query(
                     "INSERT INTO settings (setting_key, setting_value, description) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = setting_value",
-                    ["jam_pulang", "17:00", "Jam pulang yang diharapkan (format HH:mm)"]
+                    ["jam_pulang", "17:00", "Jam pulang yang diharapkan (format HH:mm)"],
                 );
                 settings.jam_pulang = "17:00";
             }
@@ -49,14 +50,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (jam_masuk) {
                 await db.query(
                     "INSERT INTO settings (setting_key, setting_value, description) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
-                    ["jam_masuk", jam_masuk, "Jam masuk yang diharapkan (format HH:mm)", jam_masuk]
+                    ["jam_masuk", jam_masuk, "Jam masuk yang diharapkan (format HH:mm)", jam_masuk],
                 );
             }
 
             if (jam_pulang) {
                 await db.query(
                     "INSERT INTO settings (setting_key, setting_value, description) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = ?",
-                    ["jam_pulang", jam_pulang, "Jam pulang yang diharapkan (format HH:mm)", jam_pulang]
+                    [
+                        "jam_pulang",
+                        jam_pulang,
+                        "Jam pulang yang diharapkan (format HH:mm)",
+                        jam_pulang,
+                    ],
                 );
             }
 
@@ -71,4 +77,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await db.end();
     }
 }
-

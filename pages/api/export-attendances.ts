@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: fuck you biome */
 import ExcelJS from "exceljs";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { getConnection } from "../../lib/db";
@@ -7,15 +8,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
         // Get date range from query params (optional)
         const { startDate, endDate } = req.query;
-        
+
         // Get settings for lateness calculation
         const [settingsRows] = await db.query(
-            "SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('jam_masuk', 'jam_pulang')"
+            "SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('jam_masuk', 'jam_pulang')",
         );
         const settings: any = {};
-        (settingsRows as any[]).forEach((row: any) => {
+        for (const row of settingsRows as any[]) {
             settings[row.setting_key] = row.setting_value;
-        });
+        }
         const expectedCheckIn = settings.jam_masuk || "08:00";
 
         // Build query with optional date filter - group by NIM and date
@@ -32,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         `;
 
         const params: any[] = [];
-        
+
         if (startDate && endDate) {
             query += " WHERE DATE(a.createdAt) BETWEEN ? AND ?";
             params.push(startDate, endDate);
@@ -54,50 +55,57 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             let durasiStatus = "-";
 
             // Format tanggal
-            const tanggal = row.tanggal ? new Date(row.tanggal).toLocaleDateString('id-ID', {
-                timeZone: 'Asia/Jakarta',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            }) : "-";
+            const tanggal = row.tanggal
+                ? new Date(row.tanggal).toLocaleDateString("id-ID", {
+                      timeZone: "Asia/Jakarta",
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                  })
+                : "-";
 
             // Format waktu masuk
-            const waktuMasuk = row.waktu_masuk ? new Date(row.waktu_masuk).toLocaleTimeString('id-ID', {
-                timeZone: 'Asia/Jakarta',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            }) : "-";
+            const waktuMasuk = row.waktu_masuk
+                ? new Date(row.waktu_masuk).toLocaleTimeString("id-ID", {
+                      timeZone: "Asia/Jakarta",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                  })
+                : "-";
 
             // Format waktu keluar
-            const waktuKeluar = row.waktu_keluar ? new Date(row.waktu_keluar).toLocaleTimeString('id-ID', {
-                timeZone: 'Asia/Jakarta',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            }) : "-";
+            const waktuKeluar = row.waktu_keluar
+                ? new Date(row.waktu_keluar).toLocaleTimeString("id-ID", {
+                      timeZone: "Asia/Jakarta",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                  })
+                : "-";
 
             // Calculate lateness (keterlambatan)
             if (row.waktu_masuk) {
                 const checkin = new Date(row.waktu_masuk);
-                const [expectedHour, expectedMinute] = expectedCheckIn.split(':').map(Number);
+                const [expectedHour, expectedMinute] = expectedCheckIn.split(":").map(Number);
                 const expectedTime = new Date(
-                    checkin.getFullYear(), 
-                    checkin.getMonth(), 
-                    checkin.getDate(), 
-                    expectedHour, 
-                    expectedMinute
+                    checkin.getFullYear(),
+                    checkin.getMonth(),
+                    checkin.getDate(),
+                    expectedHour,
+                    expectedMinute,
                 );
-                
+
                 const diffMs = checkin.getTime() - expectedTime.getTime();
                 const latenessMinutes = Math.floor(diffMs / (1000 * 60));
-                
+
                 if (latenessMinutes <= 0) {
                     latenessStatus = "Tepat Waktu";
                 } else {
                     const hours = Math.floor(latenessMinutes / 60);
                     const mins = latenessMinutes % 60;
-                    latenessStatus = hours > 0 ? `Terlambat ${hours}j ${mins}m` : `Terlambat ${mins}m`;
+                    latenessStatus =
+                        hours > 0 ? `Terlambat ${hours}j ${mins}m` : `Terlambat ${mins}m`;
                 }
             }
 
@@ -160,7 +168,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         };
 
         // Generate filename with date range
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split("T")[0];
         let filename = `attendances_${today}.xlsx`;
         if (startDate && endDate) {
             filename = `attendances_${startDate}_to_${endDate}.xlsx`;
@@ -181,4 +189,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await db.end();
     }
 }
-

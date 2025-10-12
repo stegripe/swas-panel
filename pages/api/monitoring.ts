@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: fuck you biome */
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { getConnection } from "../../lib/db";
 
@@ -7,12 +8,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (req.method === "GET") {
             // Get settings for expected check-in and check-out times
             const [settingsRows] = await db.query(
-                "SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('jam_masuk', 'jam_pulang')"
+                "SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('jam_masuk', 'jam_pulang')",
             );
             const settings: any = {};
-            (settingsRows as any[]).forEach((row: any) => {
+            for (const row of settingsRows as any[]) {
                 settings[row.setting_key] = row.setting_value;
-            });
+            }
             const expectedCheckIn = settings.jam_masuk || "08:00";
             const expectedCheckOut = settings.jam_pulang || "17:00";
 
@@ -71,7 +72,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 let lateness_minutes = null;
 
                 // If no checkin_time but has last_type=0, use last_attendance as checkin
-                const actualCheckinTime = row.checkin_time || (row.last_type === 0 ? row.last_attendance : null);
+                const actualCheckinTime =
+                    row.checkin_time || (row.last_type === 0 ? row.last_attendance : null);
 
                 // Calculate duration (time spent on campus) in seconds
                 if (actualCheckinTime) {
@@ -85,12 +87,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 if (actualCheckinTime) {
                     const checkin = new Date(actualCheckinTime);
                     const today = new Date();
-                    const [expectedHour, expectedMinute] = expectedCheckIn.split(':').map(Number);
-                    const expectedTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), expectedHour, expectedMinute);
-                    
+                    const [expectedHour, expectedMinute] = expectedCheckIn.split(":").map(Number);
+                    const expectedTime = new Date(
+                        today.getFullYear(),
+                        today.getMonth(),
+                        today.getDate(),
+                        expectedHour,
+                        expectedMinute,
+                    );
+
                     const diffMs = checkin.getTime() - expectedTime.getTime();
                     lateness_minutes = Math.floor(diffMs / (1000 * 60));
-                    
+
                     // Only count as late if positive (arrived after expected time)
                     if (lateness_minutes < 0) {
                         lateness_minutes = 0; // Came early, not late
