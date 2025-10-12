@@ -86,17 +86,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 // Calculate lateness (difference between actual check-in and expected check-in)
                 if (actualCheckinTime) {
                     const checkin = new Date(actualCheckinTime);
-                    const today = new Date();
                     const [expectedHour, expectedMinute] = expectedCheckIn.split(":").map(Number);
+                    
+                    // Convert checkin time to WIB (Asia/Jakarta, UTC+7)
+                    const checkinWIB = new Date(
+                        checkin.toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+                    );
+                    
+                    // Create expected time in WIB timezone
                     const expectedTime = new Date(
-                        today.getFullYear(),
-                        today.getMonth(),
-                        today.getDate(),
+                        checkinWIB.getFullYear(),
+                        checkinWIB.getMonth(),
+                        checkinWIB.getDate(),
                         expectedHour,
                         expectedMinute,
+                        0,
+                        0
                     );
 
-                    const diffMs = checkin.getTime() - expectedTime.getTime();
+                    const diffMs = checkinWIB.getTime() - expectedTime.getTime();
                     lateness_minutes = Math.floor(diffMs / (1000 * 60));
 
                     // Only count as late if positive (arrived after expected time)
