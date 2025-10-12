@@ -7,6 +7,7 @@ export default function MonitoringAbsensi() {
     const [data, setData] = useState<MonitoringT[]>([]);
     const [filter, setFilter] = useState("all");
     const [autoRefresh, setAutoRefresh] = useState(true);
+    const [currentTime, setCurrentTime] = useState(new Date());
 
     const fetchData = () => {
         setIsLoading(true);
@@ -25,6 +26,14 @@ export default function MonitoringAbsensi() {
             return () => clearInterval(interval);
         }
     }, [autoRefresh]);
+
+    // Update current time every second for live duration calculation
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     const goToLogin = () => {
         window.location.href = "/login";
@@ -53,17 +62,43 @@ export default function MonitoringAbsensi() {
 
     const getCheckInTime = (item: MonitoringT) => {
         // biome-ignore lint/style/useBlockStatements: short condition
-        if (item.last_attendance && item.last_type === 0) return formatTime(item.last_attendance);
-        // biome-ignore lint/style/useBlockStatements: short condition
-        if (item.prev_attendance) return formatTime(item.prev_attendance);
-
+        if (item.checkin_time) return formatTime(item.checkin_time);
         return "-";
     };
 
     const getCheckOutTime = (item: MonitoringT) => {
         // biome-ignore lint/style/useBlockStatements: short condition
-        if (item.last_attendance && item.last_type === 1) return formatTime(item.last_attendance);
+        if (item.checkout_time) return formatTime(item.checkout_time);
         return "-";
+    };
+
+    const calculateLiveDuration = (item: MonitoringT) => {
+        // biome-ignore lint/style/useBlockStatements: short condition
+        if (!item.checkin_time) return "-";
+        
+        const checkin = new Date(item.checkin_time);
+        // If checked out, use checkout time; otherwise use current time
+        const endTime = item.checkout_time ? new Date(item.checkout_time) : currentTime;
+        const durationSeconds = Math.floor((endTime.getTime() - checkin.getTime()) / 1000);
+        
+        const hours = Math.floor(durationSeconds / 3600);
+        const mins = Math.floor((durationSeconds % 3600) / 60);
+        const secs = durationSeconds % 60;
+        return `${hours}j ${mins}m ${secs}d`;
+    };
+
+    const formatLateness = (minutes: number | null) => {
+        // biome-ignore lint/style/useBlockStatements: short condition
+        if (minutes === null) return "-";
+        // biome-ignore lint/style/useBlockStatements: short condition
+        if (minutes === 0) return <span className="text-green-400">Tepat Waktu</span>;
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        let text = "";
+        // biome-ignore lint/style/useBlockStatements: short condition
+        if (hours > 0) text += `${hours}j `;
+        text += `${mins}m`;
+        return <span className="text-red-400">{text}</span>;
     };
 
     const filteredData = data.filter((item: MonitoringT) => {
@@ -146,6 +181,8 @@ export default function MonitoringAbsensi() {
                             <th className="px-4 py-3">Status</th>
                             <th className="px-4 py-3">Waktu Masuk</th>
                             <th className="px-4 py-3">Waktu Keluar</th>
+                            <th className="px-4 py-3">Durasi</th>
+                            <th className="px-4 py-3">Keterlambatan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -160,6 +197,8 @@ export default function MonitoringAbsensi() {
                                 <td className="px-4 py-2">{getStatusDisplay(item)}</td>
                                 <td className="px-4 py-2">{getCheckInTime(item)}</td>
                                 <td className="px-4 py-2">{getCheckOutTime(item)}</td>
+                                <td className="px-4 py-2">{calculateLiveDuration(item)}</td>
+                                <td className="px-4 py-2">{formatLateness(item.lateness_minutes)}</td>
                             </tr>
                         ))}
                     </tbody>

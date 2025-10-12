@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import ColumnManagerModal from "../components/columnManagerModal";
 import FloatingLoader from "../components/FloatingLoader";
 import Layout from "../components/Layout";
+import SettingsPanel from "../components/SettingsPanel";
 import { type ColumnData } from "../types";
 
 export default function Dashboard() {
@@ -57,14 +58,25 @@ export default function Dashboard() {
             .then((res) => res.json())
             .then((data) => {
                 const tableNames = data.tables?.map((t) => Object.values(t)[0]) || [];
-                setTables(tableNames);
+                // Add "Settings" as a special item
+                setTables(["⚙️ Settings", ...tableNames]);
             })
             .catch((error) => console.error("Failed to fetch tables:", error));
     }, []);
 
     const loadTable = (table: string) => {
-        setLoading(true);
         setSelectedTable(table);
+        
+        // If Settings is selected, don't load table data
+        if (table === "⚙️ Settings") {
+            setRows([]);
+            setColumns([]);
+            setNewData({});
+            setEditIndex(null);
+            return;
+        }
+
+        setLoading(true);
 
         fetch(`/api/data?table=${table}`)
             .then((res) => res.json())
@@ -96,11 +108,18 @@ export default function Dashboard() {
             setNewTableColumns([{ name: "", type: "varchar(255)" }]);
             setShowCreateForm(false);
             const updated = await fetch("/api/data").then((r) => r.json());
-            setTables(updated.tables?.map((t) => Object.values(t)[0]) || []);
+            const tableNames = updated.tables?.map((t) => Object.values(t)[0]) || [];
+            setTables(["⚙️ Settings", ...tableNames]);
         }
     };
 
     const handleDeleteTable = async (table: string) => {
+        // Prevent deleting Settings
+        if (table === "⚙️ Settings") {
+            alert("Settings tidak dapat dihapus");
+            return;
+        }
+
         // biome-ignore lint/style/useBlockStatements: short condition
         if (!confirm(`Hapus tabel ${table}?`)) return;
 
@@ -112,7 +131,8 @@ export default function Dashboard() {
 
         if (res.ok) {
             const updated = await fetch("/api/data").then((r) => r.json());
-            setTables(updated.tables?.map((t) => Object.values(t)[0]) || []);
+            const tableNames = updated.tables?.map((t) => Object.values(t)[0]) || [];
+            setTables(["⚙️ Settings", ...tableNames]);
             // biome-ignore lint/style/useBlockStatements: short condition
             if (selectedTable === table) setSelectedTable(null);
         }
@@ -159,6 +179,45 @@ export default function Dashboard() {
             console.error("Error deleting row:", error);
             alert("An error occurred while deleting the row.");
         }
+    };
+
+    // Helper to format datetime for display (convert UTC to local)
+    const formatDatetimeDisplay = (utcDatetime: string) => {
+        if (!utcDatetime) {
+            return "-";
+        }
+        const date = new Date(utcDatetime);
+        return date.toLocaleString('id-ID', { 
+            timeZone: 'Asia/Jakarta',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    };
+
+    // Helper to convert datetime to datetime-local input format
+    const toDatetimeLocalFormat = (utcDatetime: string) => {
+        if (!utcDatetime) {
+            return "";
+        }
+        const date = new Date(utcDatetime);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    // Helper to format cell value for display
+    const formatCellValue = (key: ColumnData, value: any) => {
+        if (key.type === "datetime" && value) {
+            return formatDatetimeDisplay(value);
+        }
+        return value;
     };
 
     const getInputPlaceholder = (key: ColumnData) => {
@@ -466,7 +525,10 @@ export default function Dashboard() {
                     </div>
                 </div>
             )}
-            {selectedTable ? (
+            {selectedTable === "⚙️ Settings" ? (
+                <SettingsPanel />
+            // biome-ignore lint/style/noNestedTernary: welp
+            ) : selectedTable ? (
                 <>
                     <h2 className="text-xl font-bold mb-4 text-white">Table: {selectedTable}</h2>
 
@@ -642,18 +704,49 @@ export default function Dashboard() {
                                                         className="border border-slate-700 px-4 py-2 text-white"
                                                     >
                                                         {editIndex === i ? (
-                                                            <input
-                                                                value={editData[key.name] || ""}
-                                                                onChange={(e) =>
-                                                                    setEditData({
-                                                                        ...editData,
-                                                                        [key.name]: e.target.value,
-                                                                    })
-                                                                }
-                                                                className="w-full p-1 rounded bg-slate-700 text-white"
-                                                            />
+                                                            key.type === "datetime" ? (
+                                                                <input
+                                                                    type="datetime-local"
+                                                                    value={toDatetimeLocalFormat(editData[key.name])}
+                                                                    onChange={(e) =>
+                                                                        setEditData({
+                                                                            ...editData,
+                                                                            [key.name]: e.target.value,
+                                                                        })
+                                                                    }
+                                                                    className="w-full p-1 rounded bg-slate-700 text-white"
+                                                                />
+                                                            // biome-ignore lint/style/noNestedTernary: fuck you biome
+                                                            ) : key.type === "tinyint(1)" ? (
+                                                                <select
+                                                                    value={editData[key.name] ?? ""}
+                                                                    onChange={(e) =>
+                                                                        setEditData({
+                                                                            ...editData,
+                                                                            [key.name]: Number(e.target.value),
+                                                                        })
+                                                                    }
+                                                                    className="w-full p-1 rounded bg-slate-700 text-white"
+                                                                >
+                                                                    <option value="">-</option>
+                                                                    <option value="0">0 (False)</option>
+                                                                    <option value="1">1 (True)</option>
+                                                                </select>
+                                                            ) : (
+                                                                <input
+                                                                    type="text"
+                                                                    value={editData[key.name] || ""}
+                                                                    onChange={(e) =>
+                                                                        setEditData({
+                                                                            ...editData,
+                                                                            [key.name]: e.target.value,
+                                                                        })
+                                                                    }
+                                                                    className="w-full p-1 rounded bg-slate-700 text-white"
+                                                                />
+                                                            )
                                                         ) : (
-                                                            row[key.name]
+                                                            formatCellValue(key, row[key.name])
                                                         )}
                                                     </td>
                                                 ))}

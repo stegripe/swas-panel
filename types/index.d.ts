@@ -110,4 +110,10 @@ export interface MonitoringT {
     last_attendance: string;
     last_type: 0 | 1;
     prev_attendance: string;
+    checkin_time: string | null;
+    checkout_time: string | null;
+    duration_seconds: number | null;
+    lateness_minutes: number | null;
+    expected_checkin: string;
+    expected_checkout: string;
 }
