@@ -87,12 +87,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 if (actualCheckinTime) {
                     const checkin = new Date(actualCheckinTime);
                     const [expectedHour, expectedMinute] = expectedCheckIn.split(":").map(Number);
-                    
+
                     // Convert checkin time to WIB (Asia/Jakarta, UTC+7)
                     const checkinWIB = new Date(
-                        checkin.toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+                        checkin.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }),
                     );
-                    
+
                     // Create expected time in WIB timezone
                     const expectedTime = new Date(
                         checkinWIB.getFullYear(),
@@ -101,7 +101,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         expectedHour,
                         expectedMinute,
                         0,
-                        0
+                        0,
                     );
 
                     const diffMs = checkinWIB.getTime() - expectedTime.getTime();
