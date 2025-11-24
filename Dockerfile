@@ -1,4 +1,4 @@
-FROM node:22-alpine AS base
+FROM node:24-alpine AS base
 
 RUN npm install -g pnpm
 
@@ -21,7 +21,7 @@ COPY . .
 RUN pnpm build
 
 # Production Stage
-FROM node:22-alpine AS runner
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 
