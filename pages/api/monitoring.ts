@@ -58,11 +58,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         AND a3.type = 1
                     ) AS checkout_time
                 FROM temp_users t
-                WHERE EXISTS (
-                    SELECT 1 FROM attendances a
-                    WHERE a.nim = t.nim
-                    AND DATE(a.createdAt) = CURDATE()
-                )
                 ORDER BY last_attendance DESC
         `);
 
