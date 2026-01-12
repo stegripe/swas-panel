@@ -41,6 +41,18 @@ export default function MonitoringAbsensi() {
 
     const goToRaw = () => window.open("/api/monitoring?raw=true", "_blank");
 
+    const exportToExcel = () => {
+        const link = document.createElement("a");
+        link.href = "/api/export-monitoring-excel";
+        link.setAttribute(
+            "download",
+            `monitoring_absensi_${new Date().toISOString().split("T")[0]}.xlsx`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const getStatusDisplay = (item: MonitoringT) => {
         // biome-ignore lint/style/useBlockStatements: short condition
         if (!item.last_attendance) return <span className="text-red-400">Belum Hadir</span>;
@@ -55,7 +67,6 @@ export default function MonitoringAbsensi() {
         return new Date(dateString).toLocaleTimeString("id-ID", {
             hour: "2-digit",
             minute: "2-digit",
-            second: "2-digit",
             timeZone: "Asia/Jakarta", // WIB (UTC+7)
         });
     };
@@ -83,8 +94,7 @@ export default function MonitoringAbsensi() {
 
         const hours = Math.floor(durationSeconds / 3600);
         const mins = Math.floor((durationSeconds % 3600) / 60);
-        const secs = durationSeconds % 60;
-        return `${hours}j ${mins}m ${secs}d`;
+        return `${hours}j ${mins}m`;
     };
 
     const formatLateness = (minutes: number | null) => {
@@ -159,6 +169,14 @@ export default function MonitoringAbsensi() {
                         className="ml-4 bg-slate-700 hover:bg-primary px-4 py-2 rounded-sm shadow-sm text-white font-medium"
                     >
                         Lihat JSON
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={exportToExcel}
+                        className="ml-4 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-sm shadow-sm text-white font-medium"
+                    >
+                        Export Excel
                     </button>
 
                     <button
