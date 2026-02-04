@@ -527,7 +527,6 @@ export default function Dashboard() {
             )}
             {selectedTable === "⚙️ Settings" ? (
                 <SettingsPanel />
-                // biome-ignore lint/style/noNestedTernary: welp
             ) : selectedTable ? (
                 <>
                     <h2 className="text-xl font-bold mb-4 text-white">Table: {selectedTable}</h2>
@@ -719,7 +718,6 @@ export default function Dashboard() {
                                                                     }
                                                                     className="w-full p-1 rounded bg-slate-700 text-white"
                                                                 />
-                                                                // biome-ignore lint/style/noNestedTernary: fuck you biome
                                                             ) : key.type === "tinyint(1)" ? (
                                                                 <select
                                                                     value={editData[key.name] ?? ""}
