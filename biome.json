@@ -4,6 +4,12 @@
     "files": {
         "includes": ["**", "!**/ui/*"]
     },
+    "css": {
+        "parser": {
+            "cssModules": false,
+            "tailwindDirectives": true
+        }
+    },
     "linter": {
         "domains": {
             "next": "all"
@@ -11,6 +17,7 @@
         "rules": {
             "style": {
                 "noCommonJs": "off",
+                "noNestedTernary": "off",
                 "noRestrictedGlobals": "off",
                 "useExplicitLengthCheck": "off",
                 "useNamingConvention": "off"
