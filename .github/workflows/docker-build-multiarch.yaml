@@ -14,5 +14,5 @@ on:
 
 jobs:
   docker:
-    uses: stegripe/workflows/.github/workflows/docker-build-and-push-multiarch.yaml@main
+    uses: stegripe/workflows/.github/workflows/docker-build-and-push-multiarch.yaml@564a369e6527436f62073f0f1a0ea6626596c6a9 # main
     secrets: inherit
