@@ -345,11 +345,11 @@ export default function Dashboard() {
             tables={tables}
             selected={selectedTable}
             onSelect={(table) => {
-                if (selectedTable !== table) {
+                if (selectedTable === table) {
+                    loadTable(table); // force reload
+                } else {
                     setSelectedTable(table);
                     loadTable(table);
-                } else {
-                    loadTable(table); // force reload
                 }
             }}
             onDeleteTable={handleDeleteTable}

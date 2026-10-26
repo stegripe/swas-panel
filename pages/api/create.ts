@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const placeholders = Object.keys(data)
             .map(() => "?")
             .join(", ");
-        const values = Object.values(data);
+        const values = Object.values(data) as (string | number | boolean | Date | null)[];
 
         await db.execute(`INSERT INTO \`${table}\` (${keys}) VALUES (${placeholders})`, values);
 
