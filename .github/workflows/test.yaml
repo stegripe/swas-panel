@@ -1,14 +1,14 @@
 name: Lint code and compile setup script
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - "**"
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - "**"
 
 jobs:
-  test:
-    uses: stegripe/workflows/.github/workflows/pnpm-lint-and-compile.yaml@38cf5bee854dfd9b642b5ace1793f050ce732fe4 # main
-    secrets: inherit
+    test:
+        uses: stegripe/workflows/.github/workflows/pnpm-lint-and-compile.yaml@38cf5bee854dfd9b642b5ace1793f050ce732fe4 # main
+        secrets: inherit

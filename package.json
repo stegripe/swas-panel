@@ -10,22 +10,22 @@
     "dependencies": {
         "bcryptjs": "^3.0.3",
         "exceljs": "^4.4.0",
-        "jose": "^6.2.3",
+        "jose": "^6.2.15",
         "jsonwebtoken": "^9.0.3",
-        "lucide-react": "^1.61.0",
-        "mysql2": "^3.22.3",
-        "next": "^16.2.6",
-        "react": "19.2.6",
-        "react-dom": "19.2.6"
+        "lucide-react": "^1.66.0",
+        "mysql2": "^3.24.6",
+        "next": "^16.4.4",
+        "react": "19.3.1",
+        "react-dom": "19.3.1"
     },
     "devDependencies": {
-        "@biomejs/biome": "^2.4.15",
+        "@biomejs/biome": "^2.6.4",
         "@stegripe/biomejs-config": "^1.1.0",
-        "@tailwindcss/postcss": "^4.3.0",
-        "@types/node": "24.12.4",
-        "@types/react": "19.2.15",
-        "postcss": "^8.5.10",
-        "tailwindcss": "^4.3.0",
+        "@tailwindcss/postcss": "^4.3.3",
+        "@types/node": "24.19.2",
+        "@types/react": "19.3.0",
+        "postcss": "^8.5.32",
+        "tailwindcss": "^4.3.3",
         "typescript": "^7.0.2"
     }
 }
